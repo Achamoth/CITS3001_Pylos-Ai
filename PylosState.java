@@ -1,3 +1,5 @@
+//THIS CLASS IS NOW REDUNDANT
+
 public class PylosState {
 	private static final int EMPTY = -1;
 	private static final int BLACK = 1;

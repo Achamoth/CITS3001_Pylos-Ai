@@ -129,7 +129,6 @@ public class Pylos {
 				System.out.println("You must remove 1/2 piece(s)");
 				System.out.print("How many pieces do you want to remove:");
 				Scanner sc = new Scanner(System.in);
-				sc.close();
 				int npieces = sc.nextInt();
 				remove(player, npieces);
 			}
@@ -143,7 +142,6 @@ public class Pylos {
 			System.out.println("What are the coordinates of piece "+(i+1)+" to remove?");
 			Scanner sc = new Scanner(System.in);
 			String coordinates = sc.next();
-			sc.close();
 			
 			//Convert string input into usable values
 			int ypos = interpret(coordinates.charAt(0));
@@ -184,8 +182,8 @@ public class Pylos {
 			
 			//Coordinate provided is valid; remove sphere and return it to player
 			if(tier == 1) bottom_tier[ypos][xpos] = EMPTY;
-			if(tier == 2) bottom_tier[ypos][xpos] = EMPTY;
-			if(tier == 3) bottom_tier[ypos][xpos] = EMPTY;
+			if(tier == 2) second_tier[ypos][xpos] = EMPTY;
+			if(tier == 3) third_tier[ypos][xpos] = EMPTY;
 			if(player == WHITE) white_spheres++;
 			else if(player == BLACK) black_spheres++;
 		}
@@ -193,7 +191,34 @@ public class Pylos {
 	
 	//Raise player's sphere from original position to new position
 	public void raise(int player, String source, String dest) {
+		//Interpret strings and decipher them into usable format
+		int ySource = interpret(source.charAt(0));
+		int xSource = source.charAt(1) - '0';
+		xSource--;
 		
+		int yDest = interpret(dest.charAt(0));
+		int xDest = dest.charAt(1) - '0';
+		xDest--;
+		
+		//This is probably insecure (I'm assuming the move is legal)
+		//Move sphere from source to dest
+		int tier_source = find_tier(source.charAt(0));
+		//First, remove sphere from source
+		if(tier_source == 1) {
+			bottom_tier[ySource][xSource] = EMPTY;
+		}
+		else if(tier_source == 2) {
+			second_tier[ySource][xSource] = EMPTY;
+		}
+		//Now, add it to dest
+		if(tier_source == 1) {
+			second_tier[yDest][xDest] = player;
+		}
+		else if(tier_source == 2) {
+			third_tier[yDest][xDest] = player;
+		}
+		//Finally, check if a square, horizontal line, or vertical line of same colored spheres has been created
+		//TODO: The stuff written above
 	}
 	
 	//Interpret letter and translate into array coordinate
@@ -363,6 +388,40 @@ public class Pylos {
 		System.out.println("Game is now complete. Winning player is " + winner_string);
 	}
 	
+	//Returns specified player's sphere count
+	public int sphereCount(int player) {
+		if(player == WHITE) return this.white_spheres;
+		else if(player == BLACK) return this.black_spheres;
+		else return -1;
+	}
+	
+	//Returns bottom tier board
+	public int[][] getBottom() {
+		return this.bottom_tier;
+	}
+	
+	//Returns second tier board
+	public int[][] getSecond() {
+		return this.second_tier;
+	}
+	
+	//Returns third tier board
+	public int[][] getThird() {
+		return this.third_tier;
+	}
+	
+	//Returns top tier
+	public int[][] getTop() {
+		return this.top_tier;
+	}
+	
+	//Duplicate this board object and return duplicate
+	public Pylos copy() {
+		Pylos dupe = new Pylos();
+		dupe.set(this.black_spheres, this.white_spheres, this.complete, this.bottom_tier, this.second_tier, this.third_tier, this.top_tier);
+		return dupe;
+	}
+	
 	//Returns whether or not this game has terminated
 	public boolean isComplete() {
 		return complete;
@@ -372,5 +431,21 @@ public class Pylos {
 	public int winner() {
 		if(complete) return this.top_tier[0][0];
 		else return -1;
+	}
+	
+	//Set private field values (method is purely for the use of the clone() method)
+	public void set(int bSpheres, int wSpheres, boolean isComplete, int[][] fTier, int[][] sTier, int[][] tTier, int[][] topTier) {
+		this.black_spheres = bSpheres;
+		this.white_spheres = wSpheres;
+		this.complete = isComplete;
+		this.bottom_tier = fTier.clone();
+		this.second_tier = sTier.clone();
+		this.third_tier = tTier.clone();
+		this.top_tier = topTier.clone();
+	}
+	
+	//Apply PylosMove object to state
+	public void applyMove(PylosMove action) {
+		//TODO: Complete this function. (UGH!)
 	}
 }

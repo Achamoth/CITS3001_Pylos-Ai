@@ -42,7 +42,6 @@ public class PylosAI {
 	//Result function; computes result of applying given action to given state
 	private static Pylos result(Pylos state, PylosMove action) {
 		Pylos newState = state.copy(); 
-		//TODO: Write copy() method in Pylos class
 		//TODO: Apply 'action' to newState and return newState
 	}
 	
