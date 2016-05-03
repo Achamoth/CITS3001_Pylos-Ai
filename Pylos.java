@@ -129,6 +129,7 @@ public class Pylos {
 				System.out.println("You must remove 1/2 piece(s)");
 				System.out.print("How many pieces do you want to remove:");
 				Scanner sc = new Scanner(System.in);
+				sc.close();
 				int npieces = sc.nextInt();
 				remove(player, npieces);
 			}
@@ -142,16 +143,57 @@ public class Pylos {
 			System.out.println("What are the coordinates of piece "+(i+1)+" to remove?");
 			Scanner sc = new Scanner(System.in);
 			String coordinates = sc.next();
+			sc.close();
 			
 			//Convert string input into usable values
 			int ypos = interpret(coordinates.charAt(0));
 			int xpos = coordinates.charAt(1) - '0';
 			xpos--;
 			
-			//Remove piece (if coordinates are valid)
+			//Check that the sphere at the specified position belongs to the player
 			int tier = find_tier(coordinates.charAt(0));
-			//TODO; CHECK VALIDITY OF COORDINATES PROVIDED
+			int coordinate_value = bottom_tier[ypos][xpos];
+			switch(tier) {
+				case 1:
+					coordinate_value = bottom_tier[ypos][xpos];
+					break;
+				case 2:
+					coordinate_value = second_tier[ypos][xpos];
+					break;
+				case 3:
+					coordinate_value = third_tier[ypos][xpos];
+					break;
+				case 4:
+					coordinate_value = top_tier[ypos][xpos];
+					break;
+			}
+			boolean right_player = (coordinate_value == player);
+			if(!right_player) {
+				System.out.println("This sphere doesn't belong to you. Pick another coordinate");
+				i--;
+				continue;
+			}
+			
+			//Check that the sphere is not underneath any spheres
+			boolean isUnderneath = isAnythingOnTop(tier, xpos, ypos);
+			if(isUnderneath) {
+				System.out.println("This sphere is underneath another sphere. Pick another coordinate");
+				i--;
+				continue;
+			}
+			
+			//Coordinate provided is valid; remove sphere and return it to player
+			if(tier == 1) bottom_tier[ypos][xpos] = EMPTY;
+			if(tier == 2) bottom_tier[ypos][xpos] = EMPTY;
+			if(tier == 3) bottom_tier[ypos][xpos] = EMPTY;
+			if(player == WHITE) white_spheres++;
+			else if(player == BLACK) black_spheres++;
 		}
+	}
+	
+	//Raise player's sphere from original position to new position
+	public void raise(int player, String source, String dest) {
+		
 	}
 	
 	//Interpret letter and translate into array coordinate
@@ -277,6 +319,35 @@ public class Pylos {
 		return res;
 	}
 	
+	//Takes sphere at given position, and checks if any spheres are on top of it
+	boolean isAnythingOnTop(int tier, int xpos, int ypos) {
+		//Need to consider four positions (a sphere can be below at most four other spheres)
+		boolean result = false;
+		int[][] tier_copy = second_tier.clone();
+		if(tier == 1) tier_copy = second_tier.clone();
+		if(tier == 2) tier_copy = third_tier.clone();
+		if(tier == 3) return false;
+		
+		//First position [ypos-1, xpos]
+		if(ypos-1 >= 0 && ypos-1 <= 4-(tier+1) && xpos <= 4-(tier+1)) {
+			if(tier_copy[ypos-1][xpos] != EMPTY) result = true;
+		}
+		//Second position [ypos, xpos]
+		if(ypos <= 4-(tier+1) && xpos <= 4-(tier+1)) {
+			if(tier_copy[ypos][xpos] != EMPTY) result = true;
+		}
+		//Third position [ypos, xpos-1]
+		if(ypos <= 4-(tier+1) && xpos-1 >= 0 && xpos-1 <= 4-(tier+1)) {
+			if(tier_copy[ypos][xpos-1] != EMPTY) result = true;
+		}
+		//Fourth position [ypos-1, xpos-1]
+		if(ypos-1 >= 0 && ypos-1 <= 4-(tier+1) && xpos-1 >= 0 && xpos-1 <= 4-(tier+1)) {
+			if(tier_copy[ypos-1][xpos-1] != EMPTY) result = true;
+		}
+		
+		return result;
+	}
+	
 	//Print completion message and winning player
 	void game_complete() {
 		//Record that game is complete
@@ -291,5 +362,15 @@ public class Pylos {
 		//Print completion message
 		System.out.println("Game is now complete. Winning player is " + winner_string);
 	}
+	
+	//Returns whether or not this game has terminated
+	public boolean isComplete() {
+		return complete;
+	}
+	
+	//Returns the victor of the match, if it has terminated
+	public int winner() {
+		if(complete) return this.top_tier[0][0];
+		else return -1;
+	}
 }
-
