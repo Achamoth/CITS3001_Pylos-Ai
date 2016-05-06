@@ -24,7 +24,7 @@ public class PylosAI {
 	//State of game
 	private Pylos board;
 	
-	//Utility function; looks at state and depth, and determines utility if it's a terminal state
+	//Utility function; looks at state and depth, and determines utility if it's a terminal state (utility determined from perspective of white player)
 	private static int utility(Pylos state, int depth) {
 		if(terminal(state)) {
 			//Will return utility from perspective of white player
@@ -39,9 +39,18 @@ public class PylosAI {
 		return state.isComplete();
 	}
 	
+	//Evaluation function; looks at state and computes evaluation of state from perspective of white player
+	private static int evaluate(Pylos state) {
+		//To start with, we'll use a simple eval function that just compares number of spheres
+		int whiteSpheres = state.sphereCount(WHITE);
+		int blackSpheres = state.sphereCount(BLACK);
+		int result = (whiteSpheres - blackSpheres) * 10;
+		return result;
+	}
+	
 	//Result function; computes result of applying given action to given state
 	private static Pylos result(Pylos state, PylosMove action) {
-		Pylos newState = state.copy(); 
+		Pylos newState = state.copy();
 		//TODO: Apply 'action' to newState and return newState
 	}
 	
@@ -52,7 +61,7 @@ public class PylosAI {
 	}
 	
 	//Minimax function; looks at give state and computes best move from perspective of white player
-	private static PylosMove Minimax(Pylos state) {
+	private static PylosMove Minimax(Pylos state, int depthLimit) {
 		//TODO: Finish all the bullshit above and write the recursive rule
 	}
 	

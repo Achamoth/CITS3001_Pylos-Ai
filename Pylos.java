@@ -6,6 +6,9 @@ public class Pylos {
 	private static final int WHITE = 1;
 	private static final int BLACK = 2;
 	
+	private static final int PLACE = 1;
+	private static final int RAISE = 2;
+	
 	private static final int A = 0;
 	private static final int B = 1;
 	private static final int C = 2;
@@ -200,7 +203,7 @@ public class Pylos {
 		int xDest = dest.charAt(1) - '0';
 		xDest--;
 		
-		//This is probably insecure (I'm assuming the move is legal)
+		//TODO:This is probably insecure (I'm assuming the move is legal)
 		//Move sphere from source to dest
 		int tier_source = find_tier(source.charAt(0));
 		//First, remove sphere from source
@@ -218,7 +221,14 @@ public class Pylos {
 			third_tier[yDest][xDest] = player;
 		}
 		//Finally, check if a square, horizontal line, or vertical line of same colored spheres has been created
-		//TODO: The stuff written above
+		boolean mustRemove = checkForRemove(tier_source+1, yDest, xDest);
+		if(mustRemove) {
+			System.out.println("You must remove 1/2 piece(s)");
+			System.out.print("How many pieces do you want to remove:");
+			Scanner sc = new Scanner(System.in);
+			int npieces = sc.nextInt();
+			remove(player, npieces);
+		}
 	}
 	
 	//Interpret letter and translate into array coordinate
@@ -260,7 +270,7 @@ public class Pylos {
 	}
 	
 	//From letter coordinate, find appropriate tier
-	int find_tier(char letter) {
+	private int find_tier(char letter) {
 		if(letter >= 'a' && letter <= 'd') return 1;
 		else if(letter >='e' && letter <= 'g') return 2;
 		else if(letter == 'h' || letter == 'i') return 3;
@@ -269,7 +279,7 @@ public class Pylos {
 	}
 	
 	//Check if a line or square has been formed with a recent insertion/raise
-	boolean checkForRemove(int tier_no, int ypos, int xpos) {
+	public boolean checkForRemove(int tier_no, int ypos, int xpos) {
 		boolean horizontal_line = false;
 		boolean vertical_line = false;
 		boolean square = false;
@@ -307,7 +317,7 @@ public class Pylos {
 	}
 	
 	//Calculate the number of squares surrounding the current position that have spheres of the same color
-	int neighbours(int array_bound, int[][] tier, int xpos, int ypos) {
+	private int neighbours(int array_bound, int[][] tier, int xpos, int ypos) {
 		int res = 1;
 		//Left and up
 		if(xpos-1 >= 0 && ypos-1 >= 0) {
@@ -345,7 +355,7 @@ public class Pylos {
 	}
 	
 	//Takes sphere at given position, and checks if any spheres are on top of it
-	boolean isAnythingOnTop(int tier, int xpos, int ypos) {
+	public boolean isAnythingOnTop(int tier, int xpos, int ypos) {
 		//Need to consider four positions (a sphere can be below at most four other spheres)
 		boolean result = false;
 		int[][] tier_copy = second_tier.clone();
@@ -373,19 +383,10 @@ public class Pylos {
 		return result;
 	}
 	
-	//Print completion message and winning player
-	void game_complete() {
+	//Record game as complete
+	private void game_complete() {
 		//Record that game is complete
 		this.complete = true;
-		
-		//Work out who won
-		int winner = top_tier[0][0];
-		String winner_string;
-		if(winner == BLACK) winner_string = "Black";
-		else winner_string = "White";
-		
-		//Print completion message
-		System.out.println("Game is now complete. Winning player is " + winner_string);
 	}
 	
 	//Returns specified player's sphere count
@@ -429,8 +430,7 @@ public class Pylos {
 	
 	//Returns the victor of the match, if it has terminated
 	public int winner() {
-		if(complete) return this.top_tier[0][0];
-		else return -1;
+		return this.top_tier[0][0];
 	}
 	
 	//Set private field values (method is purely for the use of the clone() method)
@@ -444,8 +444,82 @@ public class Pylos {
 		this.top_tier = topTier.clone();
 	}
 	
+	//Translate tier(int) into tier(char) i.e. 0 -> 'a' or 3 -> 'd' or 4 -> 'e' etc.
+	private char translateToLetter(int tier, int ypos) {
+		char letter = 'a';
+		if(tier == 1 && ypos == A) letter = 'a';
+		else if(tier == 1 && ypos == B) letter = 'b';
+		else if(tier == 1 && ypos == C) letter = 'c';
+		else if(tier == 1 && ypos == D) letter = 'd';
+		else if(tier == 2 && ypos == E) letter = 'e';
+		else if(tier == 2 && ypos == F) letter = 'f';
+		else if(tier == 2 && ypos == G) letter = 'g';
+		else if(tier == 3 && ypos == H) letter = 'h';
+		else if(tier == 3 && ypos == I) letter = 'i';
+		else if(tier == 4 && ypos == J) letter = 'j';
+		return letter;
+	}
+	
+	//Alternate place() method for use in applyMove()
+	private void place(int tier, int xTo, int yTo) {
+		char ypos = translateToLetter(tier, yTo);
+		String pos = ypos + String.valueOf(xTo+1);
+		place(WHITE, pos);
+	}
+	
+	//Alternate raise() method for use in applyMove()
+	private void raise(int tier_source, int xSource, int ySource, int tier_dest, int xDest, int yDest) {
+		//Compute string for source
+		char ypos_source = translateToLetter(tier_source, ySource);
+		String source = ypos_source + String.valueOf(xSource+1);
+		
+		//Computer string for dest
+		char ypos_dest = translateToLetter(tier_dest, yDest);
+		String dest = ypos_dest + String.valueOf(xDest+1);
+		
+		//Call appropriate raise function
+		raise(WHITE, source, dest);
+	}
+	
 	//Apply PylosMove object to state
 	public void applyMove(PylosMove action) {
-		//TODO: Complete this function. (UGH!)
+		int moveType = action.getType(); //Determine moveType
+		int tier = action.getTier();
+		if(moveType == PLACE) {
+			//Calculate position to place sphere
+			int toPos[] = action.getToPos();
+			int yTo = toPos[0];
+			int xTo = toPos[1];
+			
+			//Add sphere to specified position
+			place(tier, xTo, yTo);
+			
+			if(action.isRemove()) {
+				int spheresToRemove = action.getNumberOfSpheresToRemove();
+				for(int i=0; i<spheresToRemove; i++) {
+					//TODO: Remove spheres (will need to edit the code in place() and raise() for removing)
+				}
+			}
+		}
+		else if(moveType == RAISE) {
+			//Calculate positions
+			int fromPos[] = action.getFromPos();
+			int yFrom = fromPos[0];
+			int xFrom = fromPos[1];
+			
+			int toPos[] = action.getToPos();
+			int yTo = toPos[0];
+			int xTo = toPos[1];
+			
+			//Raise sphere from source to dest
+			raise(tier, xFrom, yFrom, tier+1, xTo, yTo);
+			
+			if(action.isRemove()) {
+				int spheresToRemove = action.getNumberOfSpheresToRemove();
+				for(int i=0; i<spheresToRemove; i++) {
+					//TODO: Remove spheres (will need to edit the code in place() and raise() for removing)
+				}
+			}
+		}
 	}
 }
