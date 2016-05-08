@@ -159,10 +159,10 @@ public class Pylos {
 		else if(player == BLACK) black_spheres--;
 
 		//Check if game has been completed
-		if(top_tier[0][0] != EMPTY) game_complete();
+		if(top_tier[0][0] != EMPTY) this.game_complete();
 
 		//Check if the player has completed a square or line; if so, prompt them to remove 1 or 2 squares
-		if(!complete) {
+		if(!this.complete) {
 			boolean mustRemove = checkForRemove(tier, pos1, pos2);
 			if(mustRemove) {
 				System.out.println("You must remove 1/2 piece(s)");
@@ -170,6 +170,13 @@ public class Pylos {
 				Scanner sc = new Scanner(System.in);
 				int npieces = sc.nextInt();
 				remove(player, npieces);
+			}
+			else {
+				//Check if the acting player has just run out of spheres (thus ending the game)
+				int nspheres;
+				if(player == WHITE) nspheres = this.white_spheres;
+				else nspheres = this.black_spheres;
+				if(nspheres == 0) this.game_complete();
 			}
 		}
 	}
@@ -577,7 +584,11 @@ public class Pylos {
 
 	//Returns the victor of the match, if it has terminated
 	public int winner() {
-		return this.top_tier[0][0];
+		if(this.top_tier[0][0] != EMPTY) return this.top_tier[0][0];
+		else {
+			if(this.white_spheres == 0) return BLACK;
+			else return WHITE;
+		}
 	}
 
 	//Set private field values (method is purely for the use of the clone() method)
@@ -608,14 +619,14 @@ public class Pylos {
 	}
 
 	//Alternate place() method for use in applyMove()
-	private void place(int tier, int xTo, int yTo) {
+	private void place(int player, int tier, int xTo, int yTo) {
 		char ypos = translateToLetter(tier, yTo);
 		String pos = ypos + String.valueOf(xTo+1);
-		place_alternate(WHITE, pos);
+		place_alternate(player, pos);
 	}
 
 	//Alternate raise() method for use in applyMove()
-	private void raise(int tier_source, int xSource, int ySource, int tier_dest, int xDest, int yDest) {
+	private void raise(int player, int tier_source, int xSource, int ySource, int tier_dest, int xDest, int yDest) {
 		//Compute string for source
 		char ypos_source = translateToLetter(tier_source, ySource);
 		String source = ypos_source + String.valueOf(xSource+1);
@@ -625,11 +636,11 @@ public class Pylos {
 		String dest = ypos_dest + String.valueOf(xDest+1);
 
 		//Call appropriate raise function
-		raise_alternate(WHITE, source, dest);
+		raise_alternate(player, source, dest);
 	}
 
 	//Apply PylosMove object to state
-	public void applyMove(PylosMove action) {
+	public void applyMove(PylosMove action, int player) {
 		int moveType = action.getType(); //Determine moveType
 		int tier = action.getTier();
 		if(moveType == PLACE) {
@@ -639,7 +650,7 @@ public class Pylos {
 			int xTo = toPos[1];
 
 			//Add sphere to specified position
-			place(tier, xTo, yTo);
+			place(player, tier, xTo, yTo);
 
 			if(action.isRemove()) {
 				int spheresToRemove = action.getNumberOfSpheresToRemove();
@@ -648,10 +659,19 @@ public class Pylos {
 					int rem_coordinates[] = null;
 					if(i==0) rem_coordinates = action.getRemovePos1().clone();
 					else if(i==1) rem_coordinates = action.getRemovePos2().clone();
-					this.remove_alternate(WHITE, rem_coordinates[0], rem_coordinates[1], rem_coordinates[2]);
+					this.remove_alternate(player, rem_coordinates[0], rem_coordinates[1], rem_coordinates[2]);
 				}
 			}
+			//Check if currently acting player has run out of spheres
+			int nspheres;
+			if(player == WHITE) nspheres = this.white_spheres;
+			else nspheres = this.black_spheres;
+			if(nspheres == 0) {
+				//Currently acting player has lost the game
+				this.game_complete();
+			}
 		}
+		
 		else if(moveType == RAISE) {
 			//Calculate positions
 			int fromPos[] = action.getFromPos();
@@ -663,7 +683,7 @@ public class Pylos {
 			int xTo = toPos[1];
 
 			//Raise sphere from source to dest
-			raise(tier, xFrom, yFrom, tier+1, xTo, yTo);
+			raise(player, tier, xFrom, yFrom, tier+1, xTo, yTo);
 
 			if(action.isRemove()) {
 				int spheresToRemove = action.getNumberOfSpheresToRemove();
@@ -672,7 +692,7 @@ public class Pylos {
 					int rem_coordinates[] = null;
 					if(i==0) rem_coordinates = action.getRemovePos1();
 					else if(i==1) rem_coordinates = action.getRemovePos2();
-					this.remove_alternate(WHITE, rem_coordinates[0], rem_coordinates[1], rem_coordinates[2]);
+					this.remove_alternate(player, rem_coordinates[0], rem_coordinates[1], rem_coordinates[2]);
 				}
 			}
 		}

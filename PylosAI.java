@@ -7,8 +7,8 @@ public class PylosAI {
 	
 	//Position states
 	private static final int EMPTY = -1;
-	private static final int BLACK = 1;
-	private static final int WHITE = 2;
+	private static final int WHITE = 1;
+	private static final int BLACK = 2;
 
 	private static final int A = 0;
 	private static final int B = 1;
@@ -38,7 +38,7 @@ public class PylosAI {
 	
 	//Evaluation function; looks at state and computes evaluation of state from perspective of white player
 	private static int evaluate(Pylos state) {
-		//To start with, we'll use a simple eval function that just compares number of spheres
+		//To start with, we'll use a simple evaluation function that just compares number of spheres
 		int whiteSpheres = state.sphereCount(WHITE);
 		int blackSpheres = state.sphereCount(BLACK);
 		int result = (whiteSpheres - blackSpheres) * 10;
@@ -46,9 +46,9 @@ public class PylosAI {
 	}
 	
 	//Result function; computes resulting state when applying a given action to a given state
-	private static Pylos result(Pylos state, PylosMove action) {
+	private static Pylos result(Pylos state, PylosMove action, int player) {
 		Pylos newState = state.copy();
-		newState.applyMove(action);
+		newState.applyMove(action, player);
 		return newState;
 	}
 	
@@ -273,11 +273,11 @@ public class PylosAI {
 					for(int xpos=0; xpos<4; xpos++) {
 						if(state.canRaise(player, tier, ypos, xpos)) {
 							//Sphere at this position can be raised. Record position
-							int pos1[] = new int[2];
-							pos1[0] = ypos; pos1[1] = xpos;
+							int sourcePos[] = new int[2];
+							sourcePos[0] = ypos; sourcePos[1] = xpos;
 							
 							//Now, find all possible positions the sphere can be moved to
-							//TODO: This (note, sphere can only be moved from tier 1 to tiers 2 or 3)
+							//TODO: Above (note, sphere can only be moved from tier 1 to tiers 2 or 3) (Also need to make sure sourcePos isn't underneath destPos)
 						}
 					}
 				}
