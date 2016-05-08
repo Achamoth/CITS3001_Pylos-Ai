@@ -1,5 +1,5 @@
 
-public class Test {
+public class Driver {
 	public static void main(String[] args) {
 		Pylos game = new Pylos();
 		
@@ -34,6 +34,12 @@ public class Test {
 		int from[] = {0, 3};
 		to[0] = 0; to[1] = 0;
 		nextMove = new PylosMove(2, 1, to, from, false, 0, null, null);
+		game.applyMove(nextMove);
+		
+		to[0] = 1; to[1] = 2;
+		//int rem1[] = {2, 0, 0};
+		//int rem2[] = {1, 1, 1};
+		nextMove = new PylosMove(1, 2, to, null, false, 0, null, null);
 		game.applyMove(nextMove);
 		
 		game.display();
