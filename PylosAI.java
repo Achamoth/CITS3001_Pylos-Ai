@@ -56,7 +56,6 @@ public class PylosAI {
 	private static ArrayList<PylosMove> Actions(Pylos state) {
 		ArrayList<PylosMove> result = new ArrayList<PylosMove>();
 		//TODO: Look at 'state' and determine all possible moves, and add each one to the array list
-		//TODO: Before doing this, complete the TODO's in Pylos.java
 	}
 	
 	//Minimax function; looks at give state and computes best move from perspective of white player

@@ -1,46 +1,19 @@
 
 public class Driver {
+	
+	private final static int WHITE = 1;
+	private final static int BLACK = 2;
+	
 	public static void main(String[] args) {
 		Pylos game = new Pylos();
 		
-		int to[] = {0,1};
-		PylosMove nextMove = new PylosMove(1, 1, to, null, false, 0, null, null);
-		game.applyMove(nextMove);
+		game.place(WHITE, "a1");
+		game.place(WHITE, "a2");
+		game.place(WHITE, "b1");
+		game.place(BLACK, "b2");
+		game.place(WHITE, "a3");
 		
-		to[0] = 1; to[1] = 1;
-		nextMove = new PylosMove(1, 1, to, null, false, 0, null, null);
-		game.applyMove(nextMove);
-		
-		to[0]  = 0; to[1] = 0;
-		nextMove = new PylosMove(1, 1, to, null, false, 0, null, null);
-		game.applyMove(nextMove);
-		
-		to[0] = 1; to[1] = 0;
-		nextMove = new PylosMove(1, 1, to, null, false, 0, null, null);
-		game.applyMove(nextMove);
-		
-		to[0] = 1; to[1] = 3;
-		nextMove = new PylosMove(1, 1, to, null, false, 0, null, null);
-		game.applyMove(nextMove);
-		
-		to[0] = 0; to[1] = 0;
-		nextMove = new PylosMove(1, 1, to, null, false, 0, null, null);
-		game.applyMove(nextMove);
-		
-		to[0] = 0; to[1] = 3;
-		nextMove = new PylosMove(1, 1, to, null, false, 0, null, null);
-		game.applyMove(nextMove);
-		
-		int from[] = {0, 3};
-		to[0] = 0; to[1] = 0;
-		nextMove = new PylosMove(2, 1, to, from, false, 0, null, null);
-		game.applyMove(nextMove);
-		
-		to[0] = 1; to[1] = 2;
-		//int rem1[] = {2, 0, 0};
-		//int rem2[] = {1, 1, 1};
-		nextMove = new PylosMove(1, 2, to, null, false, 0, null, null);
-		game.applyMove(nextMove);
+		game.raise(WHITE, "a3", "e2");
 		
 		game.display();
 	}

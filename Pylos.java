@@ -107,12 +107,33 @@ public class Pylos {
 	public void place(int player, String pos) {
 		//Interpret 'pos' string
 		char letter = pos.charAt(0);
-		int pos1 = interpret(letter);
-		int pos2 = pos.charAt(1) - '0';
+		int pos1 = interpret(letter); //y coordinate
+		int pos2 = pos.charAt(1) - '0'; //x coordinate
 		pos2--;
 		int tier = find_tier(letter);
 
-		//TODO: Write a function that ensures a sphere can be placed on a higher tier
+		//First, check that sphere can be placed at specified coordinate
+		if(!canPlace(tier, pos2, pos1)) {
+			//Position not valid; ask user for another position
+			boolean valid = false;
+			while(!valid) {
+				System.out.println("Sphere cannot be placed there. Please enter another destination coordinate: ");
+				Scanner sc = new Scanner(System.in);
+				String coordinates = sc.next();
+				
+				//Convert entered coordinates into usable form
+				pos1 = interpret(coordinates.charAt(0));
+				pos2 = coordinates.charAt(1) - '0';
+				pos2--;
+				
+				//Calulate tier
+				tier = find_tier(coordinates.charAt(0));
+				
+				//Check if newly provided coordinates are valid
+				valid = canPlace(tier, pos2, pos1);
+			}
+		}
+		
 		//Make move (i.e. fill square with appropriate colour sphere)
 		if(tier == 1) bottom_tier[pos1][pos2] = player;
 		else if(tier == 2) second_tier[pos1][pos2] = player;
@@ -203,10 +224,32 @@ public class Pylos {
 		int yDest = interpret(dest.charAt(0));
 		int xDest = dest.charAt(1) - '0';
 		xDest--;
-
-		//TODO:Write a function that ensures a sphere can be placed on a higher tier
-		//Move sphere from source to dest
+		
+		//Calculate tier of source coordinate
 		int tier_source = find_tier(source.charAt(0));
+		
+		//Check that destination coordinate is valid
+		if(!canPlace(tier_source+1, xDest, yDest)) {
+			//If it isn't, ask user for another destination coordinate
+			boolean valid = false;
+			while(!valid) {
+				System.out.println("Sphere cannot be placed there. Please enter another destination coordinate: ");
+				Scanner sc = new Scanner(System.in);
+				String coordinates = sc.next();
+				
+				//Convert entered coordinates into usable form
+				yDest = interpret(coordinates.charAt(0));
+				xDest = coordinates.charAt(1) - '0';
+				xDest--;
+				
+				//Calulate tier
+				int tier_dest = find_tier(coordinates.charAt(0));
+				
+				//Check if newly provided coordinates are valid
+				valid = canPlace(tier_dest, xDest, yDest);
+			}
+		}
+		
 		//First, remove sphere from source
 		if(tier_source == 1) {
 			bottom_tier[ySource][xSource] = EMPTY;
@@ -230,6 +273,59 @@ public class Pylos {
 			int npieces = sc.nextInt();
 			remove(player, npieces);
 		}
+	}
+	
+	//Checks if a sphere can be placed in a specified position
+	public boolean canPlace(int tier, int xpos, int ypos) {
+		//First, check that no other sphere exists there
+		boolean result = true;
+		int tier_clone[][] = null;
+		
+		if(tier == 1) tier_clone = bottom_tier.clone();
+		else if(tier == 2) tier_clone = second_tier.clone();
+		else if(tier == 3) tier_clone = third_tier.clone();
+		else if(tier == 4) tier_clone = top_tier.clone();
+		
+		//First, make sure a sphere doesn't already exist in that position
+		if(tier_clone[ypos][xpos] != EMPTY) {
+			return false;
+		}
+		
+		//If the tier is 1, then the position is valid
+		if(tier == 1) {
+			return true;
+		}
+		//Next, if the tier is 2, check that there are already four spheres underneath it on tier 1
+		if(tier == 2) {
+			int sphere1 = bottom_tier[ypos][xpos];
+			int sphere2 = bottom_tier[ypos][xpos+1];
+			int sphere3 = bottom_tier[ypos+1][xpos];
+			int sphere4 = bottom_tier[ypos+1][xpos+1];
+			if(sphere1 != EMPTY && sphere2 != EMPTY && sphere3 != EMPTY && sphere4 != EMPTY) {
+				return true;
+			}
+		}
+		//Next, if the tier is 3, check that there are already four spheres underneath it on tier 2
+		else if(tier == 3) {
+			int sphere1 = second_tier[ypos][xpos];
+			int sphere2 = second_tier[ypos][xpos+1];
+			int sphere3 = second_tier[ypos+1][xpos];
+			int sphere4 = second_tier[ypos+1][xpos+1];
+			if(sphere1 != EMPTY && sphere2 != EMPTY && sphere3 != EMPTY && sphere4 != EMPTY) {
+				return true;
+			}
+		}
+		//Finally, if the tier is 4, check that there are already four spheres underneath it on tier 3
+		else if(tier == 4) {
+			int sphere1 = third_tier[ypos][xpos];
+			int sphere2 = third_tier[ypos][xpos+1];
+			int sphere3 = third_tier[ypos+1][xpos];
+			int sphere4 = third_tier[ypos+1][xpos+1];
+			if(sphere1 != EMPTY && sphere2 != EMPTY && sphere3 != EMPTY && sphere4 != EMPTY) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	//Interpret letter and translate into array coordinate
@@ -533,7 +629,7 @@ public class Pylos {
 	}
 
 	//Alternate place method for use with apply_move()
-	public void place_alternate(int player, String pos) {
+	private void place_alternate(int player, String pos) {
 		//Interpret 'pos' string
 		char letter = pos.charAt(0);
 		int pos1 = interpret(letter);
@@ -556,7 +652,7 @@ public class Pylos {
 	}
 
 	//Alternate raise method for use with apply_move()
-	public void raise_alternate(int player, String source, String dest) {
+	private void raise_alternate(int player, String source, String dest) {
 		//Interpret strings and decipher them into usable format
 		int ySource = interpret(source.charAt(0));
 		int xSource = source.charAt(1) - '0';
