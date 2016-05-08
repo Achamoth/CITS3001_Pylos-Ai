@@ -102,6 +102,20 @@ public class Pylos {
 		//Newline
 		System.out.print("\n\n");
 	}
+	
+	//Given a position on the board, determines if that position belongs to the specified player
+	public boolean belongsToPlayer(int player, int tier, int ypos, int xpos) {
+		if(tier == 1) {
+			if(bottom_tier[ypos][xpos] == player) return true;
+		}
+		else if(tier == 2) {
+			if(second_tier[ypos][xpos] == player) return true;
+		}
+		else if(tier == 3) {
+			if(third_tier[ypos][xpos] == player) return true;
+		}
+		return false;
+	}
 
 	//Place player's sphere at position 'pos'
 	public void place(int player, String pos) {
@@ -478,6 +492,42 @@ public class Pylos {
 		}
 
 		return result;
+	}
+	
+	//Determine if sphere at given position can be raised
+	public boolean canRaise(int player, int tier, int ypos, int xpos) {
+		//First, check that the position belongs to the player
+		if(!this.belongsToPlayer(player, tier, ypos, xpos)) {
+			return false;
+		}
+		
+		//Next, check that nothing is on top of the sphere
+		if(this.isAnythingOnTop(tier, xpos, ypos)) {
+			return false;
+		}
+		
+		//Sphere belongs to player and nothing is on top. Return true
+		return true;
+	}
+	
+	//Checks a position and determines whether or not the specified player can remove the sphere at that position
+	public boolean canRemove(int player, int tier, int ypos, int xpos) {
+		int tier_copy[][] = null;
+		
+		//First, check if the sphere at that position belongs to the player
+		if(tier == 1) tier_copy = bottom_tier.clone();
+		else if(tier == 2) tier_copy = second_tier.clone();
+		else if(tier == 3) tier_copy = third_tier.clone();
+		
+		if(tier_copy[ypos][xpos] != player) return false;
+		
+		//If it does belong to the player, then check if the sphere has anything underneath it
+		if(isAnythingOnTop(tier, xpos, ypos)) {
+			return false;
+		}
+		
+		//If nothing is on top, then the sphere can be removed
+		return true;
 	}
 
 	//Record game as complete
