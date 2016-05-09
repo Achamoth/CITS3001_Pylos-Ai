@@ -273,11 +273,35 @@ public class PylosAI {
 					for(int xpos=0; xpos<4; xpos++) {
 						if(state.canRaise(player, tier, ypos, xpos)) {
 							//Sphere at this position can be raised. Record position
-							int sourcePos[] = new int[2];
-							sourcePos[0] = ypos; sourcePos[1] = xpos;
+							int sourcePos[] = new int[3];
+							sourcePos[0] = tier; sourcePos[1] = ypos; sourcePos[2] = xpos;
 							
-							//Now, find all possible positions the sphere can be moved to
-							//TODO: Above (note, sphere can only be moved from tier 1 to tiers 2 or 3) (Also need to make sure sourcePos isn't underneath destPos)
+							//Now, find all possible positions the sphere can be moved to (sphere can only be moved from tier 1 to tiers 2 or 3)
+							//Need to make sure sourcePos isn't underneath destPos when moving from tier 1 to tier 2
+							
+							//Also need to make sure sourcePos isn't considered for removal; need to make sure destPos is considered for removal
+							//Need to make sure any spheres underneath sourcePos are considered for removal; need to make sure any spheres underneath destPos aren't considered for removal
+							
+							for(int tier_dest=2; tier_dest<4; tier_dest++) {
+								if(tier_dest == 2) {
+									for(int yDest=E; yDest<H; yDest++) {
+										for(int xDest=0; xDest<3; xDest++) {
+											if(state.canPlace(tier_dest, xDest, yDest)) {
+												//Sphere can be placed at this position, but first ensure this position isn't on top of the source position
+												if(!state.isUnderneath(tier, ypos, xpos, tier_dest, yDest, xDest)) {
+													//Dest isn't underneath source, so sphere can be placed here. Record position
+													int destPos[]  = new int[2];
+													destPos[0] = yDest; destPos[1] = xDest;
+													//TODO: Continue from here (check if a removal is required when placing at this position)
+												}
+											}
+										}
+									}
+								}
+								else if(tier_dest == 3) {
+									
+								}
+							}
 						}
 					}
 				}

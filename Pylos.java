@@ -102,7 +102,7 @@ public class Pylos {
 		//Newline
 		System.out.print("\n\n");
 	}
-	
+
 	//Given a position on the board, determines if that position belongs to the specified player
 	public boolean belongsToPlayer(int player, int tier, int ypos, int xpos) {
 		if(tier == 1) {
@@ -134,20 +134,20 @@ public class Pylos {
 				System.out.println("Sphere cannot be placed there. Please enter another destination coordinate: ");
 				Scanner sc = new Scanner(System.in);
 				String coordinates = sc.next();
-				
+
 				//Convert entered coordinates into usable form
 				pos1 = interpret(coordinates.charAt(0));
 				pos2 = coordinates.charAt(1) - '0';
 				pos2--;
-				
+
 				//Calulate tier
 				tier = find_tier(coordinates.charAt(0));
-				
+
 				//Check if newly provided coordinates are valid
 				valid = canPlace(tier, pos2, pos1);
 			}
 		}
-		
+
 		//Make move (i.e. fill square with appropriate colour sphere)
 		if(tier == 1) bottom_tier[pos1][pos2] = player;
 		else if(tier == 2) second_tier[pos1][pos2] = player;
@@ -235,6 +235,25 @@ public class Pylos {
 		}
 	}
 
+	//Given positions of 2 spheres, checks if the first is underneath the second
+	public boolean isUnderneath(int tier1, int ypos1, int xpos1, int tier2, int ypos2, int xpos2) {
+
+		if(ypos1 == ypos2 && xpos1 == xpos2) {
+			return true;
+		}
+		else if(ypos1 == ypos2 && xpos1+1 == xpos2) {
+			return true;
+		}
+		else if(ypos1+1 == ypos2 && xpos1 == xpos2) {
+			return true;
+		}
+		else if(ypos1+1 == ypos2 && xpos1+1 == xpos2) {
+			return true;
+		}
+
+		return false;
+	}
+
 	//Raise player's sphere from original position to new position
 	public void raise(int player, String source, String dest) {
 		//Interpret strings and decipher them into usable format
@@ -245,10 +264,10 @@ public class Pylos {
 		int yDest = interpret(dest.charAt(0));
 		int xDest = dest.charAt(1) - '0';
 		xDest--;
-		
+
 		//Calculate tier of source coordinate
 		int tier_source = find_tier(source.charAt(0));
-		
+
 		//Check that destination coordinate is valid
 		if(!canPlace(tier_source+1, xDest, yDest)) {
 			//If it isn't, ask user for another destination coordinate
@@ -257,20 +276,20 @@ public class Pylos {
 				System.out.println("Sphere cannot be placed there. Please enter another destination coordinate: ");
 				Scanner sc = new Scanner(System.in);
 				String coordinates = sc.next();
-				
+
 				//Convert entered coordinates into usable form
 				yDest = interpret(coordinates.charAt(0));
 				xDest = coordinates.charAt(1) - '0';
 				xDest--;
-				
+
 				//Calulate tier
 				int tier_dest = find_tier(coordinates.charAt(0));
-				
+
 				//Check if newly provided coordinates are valid
 				valid = canPlace(tier_dest, xDest, yDest);
 			}
 		}
-		
+
 		//First, remove sphere from source
 		if(tier_source == 1) {
 			bottom_tier[ySource][xSource] = EMPTY;
@@ -295,23 +314,23 @@ public class Pylos {
 			remove(player, npieces);
 		}
 	}
-	
+
 	//Checks if a sphere can be placed in a specified position
 	public boolean canPlace(int tier, int xpos, int ypos) {
 		//First, check that no other sphere exists there
 		boolean result = true;
 		int tier_clone[][] = null;
-		
+
 		if(tier == 1) tier_clone = bottom_tier.clone();
 		else if(tier == 2) tier_clone = second_tier.clone();
 		else if(tier == 3) tier_clone = third_tier.clone();
 		else if(tier == 4) tier_clone = top_tier.clone();
-		
+
 		//First, make sure a sphere doesn't already exist in that position
 		if(tier_clone[ypos][xpos] != EMPTY) {
 			return false;
 		}
-		
+
 		//If the tier is 1, then the position is valid
 		if(tier == 1) {
 			return true;
@@ -500,39 +519,39 @@ public class Pylos {
 
 		return result;
 	}
-	
+
 	//Determine if sphere at given position can be raised
 	public boolean canRaise(int player, int tier, int ypos, int xpos) {
 		//First, check that the position belongs to the player
 		if(!this.belongsToPlayer(player, tier, ypos, xpos)) {
 			return false;
 		}
-		
+
 		//Next, check that nothing is on top of the sphere
 		if(this.isAnythingOnTop(tier, xpos, ypos)) {
 			return false;
 		}
-		
+
 		//Sphere belongs to player and nothing is on top. Return true
 		return true;
 	}
-	
+
 	//Checks a position and determines whether or not the specified player can remove the sphere at that position
 	public boolean canRemove(int player, int tier, int ypos, int xpos) {
 		int tier_copy[][] = null;
-		
+
 		//First, check if the sphere at that position belongs to the player
 		if(tier == 1) tier_copy = bottom_tier.clone();
 		else if(tier == 2) tier_copy = second_tier.clone();
 		else if(tier == 3) tier_copy = third_tier.clone();
-		
+
 		if(tier_copy[ypos][xpos] != player) return false;
-		
+
 		//If it does belong to the player, then check if the sphere has anything underneath it
 		if(isAnythingOnTop(tier, xpos, ypos)) {
 			return false;
 		}
-		
+
 		//If nothing is on top, then the sphere can be removed
 		return true;
 	}
@@ -671,19 +690,20 @@ public class Pylos {
 				this.game_complete();
 			}
 		}
-		
+
 		else if(moveType == RAISE) {
 			//Calculate positions
 			int fromPos[] = action.getFromPos();
-			int yFrom = fromPos[0];
-			int xFrom = fromPos[1];
+			int tier_source = fromPos[0];
+			int yFrom = fromPos[1];
+			int xFrom = fromPos[2];
 
 			int toPos[] = action.getToPos();
 			int yTo = toPos[0];
 			int xTo = toPos[1];
 
 			//Raise sphere from source to dest
-			raise(player, tier, xFrom, yFrom, tier+1, xTo, yTo);
+			raise(player, tier_source, xFrom, yFrom, tier, xTo, yTo);
 
 			if(action.isRemove()) {
 				int spheresToRemove = action.getNumberOfSpheresToRemove();
