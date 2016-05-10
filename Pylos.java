@@ -134,6 +134,7 @@ public class Pylos {
 				System.out.println("Sphere cannot be placed there. Please enter another destination coordinate: ");
 				Scanner sc = new Scanner(System.in);
 				String coordinates = sc.next();
+				//TODO: Will probably want to do some error checking on the input to make sure it's actually a valid coordinate
 
 				//Convert entered coordinates into usable form
 				pos1 = interpret(coordinates.charAt(0));

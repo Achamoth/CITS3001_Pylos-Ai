@@ -443,6 +443,7 @@ public class PylosAI {
 			//Compute all actions that can be performed
 			ArrayList<PylosMove> moves = actions(state, player);
 			int maxMinVal = (int) Double.NEGATIVE_INFINITY;
+			//Maximize the minimum value that the opponent can select
 			for(PylosMove curMove : moves) {
 				int minVal = minValue(result(state, curMove, player), 0);
 				if(minVal > maxMinVal) {
@@ -454,7 +455,17 @@ public class PylosAI {
 		
 		//If CPU is black
 		else if(player == BLACK) {
-			
+			//Compute all actions that can be performed
+			ArrayList<PylosMove> moves = actions(state, player);
+			int minMaxVal = (int) Double.POSITIVE_INFINITY;
+			//Minimize the maximum value the opponent can select
+			for(PylosMove curMove : moves) {
+				int maxVal = maxValue(result(state, curMove, player), 0);
+				if(maxVal < minMaxVal) {
+					minMaxVal = maxVal;
+					move = curMove;
+				}
+			}
 		}
 		
 		return move;
