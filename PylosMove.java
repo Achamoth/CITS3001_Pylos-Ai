@@ -15,11 +15,14 @@ public class PylosMove {
 	public PylosMove(int type, int t, int[] toPos, int[] fromPos, boolean rem, int nSpheres, int[] pos1, int[] pos2) {
 		this.moveType = type;
 		this.tier = t;
+		this.remove = false; //Default to false
 		this.to = toPos.clone();
 		if(type == PLACE) {
 			this.from = null;
 		}
-		else this.from = fromPos.clone();
+		else {
+			this.from = fromPos.clone();
+		}
 		this.remove = rem;
 		this.nSpheresToRemove = nSpheres;
 		if(!remove) {

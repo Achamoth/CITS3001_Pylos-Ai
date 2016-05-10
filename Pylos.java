@@ -429,6 +429,12 @@ public class Pylos {
 		else if(tier_no == 3) tier = third_tier.clone();
 		else tier = top_tier.clone();
 
+		//First ensure that position is not empty
+		if(tier[ypos][xpos] == EMPTY) {
+			//If it is empty, simply return false
+			return false;
+		}
+		
 		//Check for vertical line
 		count = 0;
 		int i;
@@ -670,7 +676,7 @@ public class Pylos {
 
 			//Add sphere to specified position
 			place(player, tier, xTo, yTo);
-
+			
 			if(action.isRemove()) {
 				int spheresToRemove = action.getNumberOfSpheresToRemove();
 				for(int i=0; i<spheresToRemove; i++) {
@@ -726,13 +732,13 @@ public class Pylos {
 		int pos2 = pos.charAt(1) - '0';
 		pos2--;
 		int tier = find_tier(letter);
-
+		
 		//Make move (i.e. fill square with appropriate colour sphere)
 		if(tier == 1) bottom_tier[pos1][pos2] = player;
 		else if(tier == 2) second_tier[pos1][pos2] = player;
 		else if(tier == 3) third_tier[pos1][pos2] = player;
 		else if(tier == 4) top_tier[pos1][pos2] = player;
-
+		
 		//Deduct from player's sphere count
 		if(player == WHITE) white_spheres--;
 		else if(player == BLACK) black_spheres--;

@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 
 public class Driver {
 	
@@ -7,14 +8,11 @@ public class Driver {
 	public static void main(String[] args) {
 		Pylos game = new Pylos();
 		
-		game.place(WHITE, "a1");
-		game.place(WHITE, "a2");
-		game.place(WHITE, "b1");
-		game.place(BLACK, "b2");
-		game.place(WHITE, "a3");
-		
-		game.raise(WHITE, "a3", "e2");
-		
+		ArrayList<PylosMove> moves = PylosAI.Actions(game, WHITE);
+		//System.out.println(moves.size());
+		PylosMove move = moves.get(2);
+		game.applyMove(move, WHITE);
 		game.display();
+		
 	}
 }
