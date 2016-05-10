@@ -786,6 +786,7 @@ public class Pylos {
 		int xSource = source.charAt(1) - '0';
 		xSource--;
 
+		int tier_dest = find_tier(dest.charAt(0));
 		int yDest = interpret(dest.charAt(0));
 		int xDest = dest.charAt(1) - '0';
 		xDest--;
@@ -800,8 +801,10 @@ public class Pylos {
 			second_tier[ySource][xSource] = EMPTY;
 		}
 		//Now, add it to dest
+		//TODO: Test the code below. I edited it to allow raising spheres from tier 1 to tier 3 (was previously assuming spheres will only be raised one level)
 		if(tier_source == 1) {
-			second_tier[yDest][xDest] = player;
+			if(tier_dest == 2) second_tier[yDest][xDest] = player;
+			else if(tier_dest == 3) third_tier[yDest][xDest] = player;
 		}
 		else if(tier_source == 2) {
 			third_tier[yDest][xDest] = player;

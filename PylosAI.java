@@ -326,7 +326,7 @@ public class PylosAI {
 														//TODO: Consider all possible pairs of spheres that can be removed
 														int tier_removal = 1;
 														for(tier_removal=1; tier_removal<4; tier_removal++) {
-															if(tier == 1) {
+															if(tier_removal == 1) {
 																for(int yrem=A; yrem<=D; yrem++) {
 																	for(int xrem=0; xrem<4; xrem++) {
 																		if(testState.canRemove(player, tier_removal, yrem, xrem)) {
@@ -338,7 +338,7 @@ public class PylosAI {
 																	}
 																}
 															}
-															else if(tier == 2) {
+															else if(tier_removal == 2) {
 																for(int yrem=E; yrem<=G; yrem++) {
 																	for(int xrem=0; xrem<3; xrem++) {
 																		if(testState.canRemove(player, tier_removal, yrem, xrem)) {
@@ -350,7 +350,7 @@ public class PylosAI {
 																	}
 																}
 															}
-															else if(tier == 3) {
+															else if(tier_removal == 3) {
 																for(int yrem=H; yrem<=I; yrem++) {
 																	for(int xrem=0; xrem<2; xrem++) {
 																		if(testState.canRemove(player, tier_removal, yrem, xrem)) {
