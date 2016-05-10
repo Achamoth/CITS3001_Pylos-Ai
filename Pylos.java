@@ -241,13 +241,13 @@ public class Pylos {
 		if(ypos1 == ypos2 && xpos1 == xpos2) {
 			return true;
 		}
-		else if(ypos1 == ypos2 && xpos1+1 == xpos2) {
+		else if(ypos1 == ypos2 && xpos1 == xpos2+1) {
 			return true;
 		}
-		else if(ypos1+1 == ypos2 && xpos1 == xpos2) {
+		else if(ypos1 == ypos2+1 && xpos1 == xpos2) {
 			return true;
 		}
-		else if(ypos1+1 == ypos2 && xpos1+1 == xpos2) {
+		else if(ypos1 == ypos2+1 && xpos1 == xpos2+1) {
 			return true;
 		}
 
@@ -416,6 +416,7 @@ public class Pylos {
 	}
 
 	//Check if a line or square has been formed with a recent insertion/raise
+	//TODO: Fix this code
 	public boolean checkForRemove(int tier_no, int ypos, int xpos) {
 		boolean horizontal_line = false;
 		boolean vertical_line = false;
@@ -621,14 +622,25 @@ public class Pylos {
 		this.black_spheres = bSpheres;
 		this.white_spheres = wSpheres;
 		this.complete = isComplete;
-		this.bottom_tier = fTier.clone();
-		this.second_tier = sTier.clone();
-		this.third_tier = tTier.clone();
-		this.top_tier = topTier.clone();
+		this.bottom_tier = array_copy(fTier, 4);
+		this.second_tier = array_copy(sTier, 3);
+		this.third_tier = array_copy(tTier, 2);
+		this.top_tier = array_copy(topTier, 1);
+	}
+	
+	//Creates new 2D array and copies existing 2d array contents into it (used to copy tiers)
+	private int[][] array_copy(int[][] tier, int size) {
+		int[][] result = new int[size][size];
+		for(int i=0; i<size; i++) {
+			for(int j=0; j<size; j++) {
+				result[i][j] = tier[i][j];
+			}
+		}
+		return result;
 	}
 
 	//Translate tier(int) into tier(char) i.e. 0 -> 'a' or 3 -> 'd' or 4 -> 'e' etc.
-	private char translateToLetter(int tier, int ypos) {
+	public static char translateToLetter(int tier, int ypos) {
 		char letter = 'a';
 		if(tier == 1 && ypos == A) letter = 'a';
 		else if(tier == 1 && ypos == B) letter = 'b';
