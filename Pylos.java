@@ -416,7 +416,6 @@ public class Pylos {
 	}
 
 	//Check if a line or square has been formed with a recent insertion/raise
-	//TODO: Fix this code
 	public boolean checkForRemove(int tier_no, int ypos, int xpos) {
 		boolean horizontal_line = false;
 		boolean vertical_line = false;
@@ -452,50 +451,71 @@ public class Pylos {
 		if(count == i && tier_no <= 2) horizontal_line = true;
 
 		//Check for square
-		count = 0;
-		count = neighbours(4-tier_no, tier, xpos, ypos);
-		if(count >= 4) square = true;
+		if(isInSquare(4-tier_no, tier, xpos, ypos)){
+			square = true;
+		}
 
 		//Return result
 		return (square||vertical_line||horizontal_line);
 	}
 
 	//Calculate the number of squares surrounding the current position that have spheres of the same color
-	private int neighbours(int array_bound, int[][] tier, int xpos, int ypos) {
-		int res = 1;
+	private boolean isInSquare(int array_bound, int[][] tier, int xpos, int ypos) {
+		//Set flags
+		boolean leftAndUp = false;
+		boolean left = false;
+		boolean leftAndDown = false;
+		boolean up = false;
+		boolean down = false;
+		boolean rightAndUp = false;
+		boolean right = false;
+		boolean rightAndDown = false;
+		
+		
 		//Left and up
 		if(xpos-1 >= 0 && ypos-1 >= 0) {
-			if(tier[ypos-1][xpos-1] == tier[ypos][xpos]) res++;
+			if(tier[ypos-1][xpos-1] == tier[ypos][xpos]) leftAndUp = true;
 		}
 		//Left
 		if(xpos-1 >= 0) {
-			if(tier[ypos][xpos-1] == tier[ypos][xpos]) res++;
+			if(tier[ypos][xpos-1] == tier[ypos][xpos]) left = true;
 		}
 		//Left and down
 		if(xpos-1 >= 0 && ypos+1 <= array_bound) {
-			if(tier[ypos+1][xpos-1] == tier[ypos][xpos]) res++;
+			if(tier[ypos+1][xpos-1] == tier[ypos][xpos]) leftAndDown = true;
 		}
 		//Up
 		if(ypos-1 >= 0) {
-			if(tier[ypos-1][xpos] == tier[ypos][xpos]) res++;
+			if(tier[ypos-1][xpos] == tier[ypos][xpos]) up = true;
 		}
 		//Down
 		if(ypos+1 <= array_bound) {
-			if(tier[ypos+1][xpos] == tier[ypos][xpos]) res++;
+			if(tier[ypos+1][xpos] == tier[ypos][xpos]) down = true;
 		}
 		//Right and up
 		if(xpos+1 <= array_bound && ypos-1 >= 0) {
-			if(tier[ypos-1][xpos+1] == tier[ypos][xpos]) res++;
+			if(tier[ypos-1][xpos+1] == tier[ypos][xpos]) rightAndUp = true;
 		}
 		//Right
 		if(xpos+1 <= array_bound) {
-			if(tier[ypos][xpos+1] == tier[ypos][xpos]) res++;
+			if(tier[ypos][xpos+1] == tier[ypos][xpos]) right = true;
 		}
 		//Right and down
 		if(xpos+1 <= array_bound && ypos+1 <= array_bound) {
-			if(tier[ypos+1][xpos+1] == tier[ypos][xpos]) res++;
+			if(tier[ypos+1][xpos+1] == tier[ypos][xpos]) rightAndDown = true;
 		}
-		return res;
+		
+		/*Each sphere can be a corner of 4 squares*/
+		//Square 1: Up, Left, Left and Up
+		if(up && left && leftAndUp) return true;
+		//Square 2: Up, Right, Right and Up
+		else if(up && right && rightAndUp) return true;
+		//Square 3: Down, Right, Right and Down
+		else if(down && right && rightAndDown) return true;
+		//Square 4: Down, Left, Left and Down
+		else if(down && left && leftAndDown) return true;
+		//Not a part of any square (if all 4 cases above fail)
+		else return false;
 	}
 
 	//Takes sphere at given position, and checks if any spheres are on top of it
