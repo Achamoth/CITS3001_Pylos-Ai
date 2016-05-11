@@ -14,9 +14,10 @@ public class PylosAI {
 	private static final int EMPTY = -1;
 	private static final int WHITE = 1;
 	private static final int BLACK = 2;
-	
+
 	//Depth limit on game search tree
-	private static final int DEPTH_LIMIT = 5;
+	private static final int DEPTH_LIMIT_MINIMAX = 5;
+	private static final int DEPTH_LIMIT_ALPHABETA = 7;
 
 	private static final int A = 0;
 	private static final int B = 1;
@@ -51,6 +52,47 @@ public class PylosAI {
 		int blackSpheres = state.sphereCount(BLACK);
 		int result = (whiteSpheres - blackSpheres) * 10; //Maximizing value from white's perspective 
 		return result;
+	}
+
+	//Second evaluation function written; extends on evaluate_simple. This function considers number of spheres placed, but also what tier they've been placed on (higher is better)
+	private static int evaluate_height(Pylos state) {
+		int result = 0;
+
+		//Find number of spheres placed by each player on the bottom tier, and each has a weight of 15 or -15 (black spheres or white spheres, respectively)
+		int bottom_tier[][] = state.getBottom();
+		for(int y=A; y<=E; y++) {
+			for(int x=0; x<4; x++) {
+				if(bottom_tier[y][x] == WHITE) result -= 15;
+				else if(bottom_tier[y][x] == BLACK) result += 15;
+			}
+		}
+
+		//Find number of spheres placed by each player on the second tier, and each has a weight of 7 or -7 (black spheres or white spheres, respectively)
+		int second_tier[][] = state.getSecond();
+		for(int y=E; y<=G; y++) {
+			for(int x=0; x<3; x++) {
+				if(second_tier[y][x] == WHITE) result -= 7;
+				else if(second_tier[y][x] == BLACK) result += 7;
+			}
+		}
+
+		//Find number of spheres placed by each player on the third tier, and each has a weight of 2 or -2 (black spheres or white spheres, respectively)
+		int third_tier[][] = state.getThird();
+		for(int y=H; y<=I; y++) {
+			for(int x=0; x<2; x++) {
+				if(third_tier[y][x] == WHITE) result -= 2;
+				else if(third_tier[y][x] == BLACK) result += 2;
+			}
+		}
+
+		return result;
+	}
+
+	/*Evaluate function currently in use by AI; it simply calls another evaluation function.
+	 *Doing this simply allows me to very quickly change the evaluation function being used by the AI (only need to change the function call in here)
+	 */
+	private static int evaluate(Pylos state) {
+		return evaluate_height(state);
 	}
 
 	//Result function; computes resulting state when applying a given action to a given state
@@ -322,7 +364,7 @@ public class PylosAI {
 														//If it does, compute all possible removals
 														int rem1[] = new int[3];
 														int rem2[] = new int[3];
-														
+
 														//TODO: Consider all possible pairs of spheres that can be removed
 														int tier_removal = 1;
 														for(tier_removal=1; tier_removal<4; tier_removal++) {
@@ -437,7 +479,7 @@ public class PylosAI {
 	 */
 	public static PylosMove minimax(Pylos state, int player) {
 		PylosMove move = null;
-		
+
 		//If CPU is white
 		if(player == WHITE) {
 			//Compute all actions that can be performed
@@ -452,7 +494,7 @@ public class PylosAI {
 				}
 			}
 		}
-		
+
 		//If CPU is black
 		else if(player == BLACK) {
 			//Compute all actions that can be performed
@@ -467,10 +509,10 @@ public class PylosAI {
 				}
 			}
 		}
-		
+
 		return move;
 	}
-	
+
 	//Max-value function; returns utility/evaluation value, aiming to maximize
 	private static int maxValue(Pylos state, int curDepth) {
 		//Check if the state is a terminal state
@@ -478,35 +520,35 @@ public class PylosAI {
 			//If it is, return the utility of the state
 			return utility(state);
 		}
-		
+
 		//If it isn't, check if the depth limit has been reached
-		if(curDepth == DEPTH_LIMIT) {
+		if(curDepth == DEPTH_LIMIT_MINIMAX) {
 			//If depth limit has been reached, return evaluation of current state
-			return evaluate_simple(state);
+			return evaluate(state);
 		}
-		
+
 		//Otherwise, compute all actions possible by white player in current state
 		ArrayList<PylosMove> moves = actions(state, WHITE);
-		
+
 		//Start return value at negative infinity
 		int maxMinVal = (int) Double.NEGATIVE_INFINITY;
-		
+
 		//Loop over all actions possible by WHITE
 		for(PylosMove curMove : moves) {
 			//Compute resulting state (after applying curMove to 'state')
 			Pylos resultState = result(state, curMove, WHITE);
-			
+
 			//Work out the largest utility this action will lead me to (assuming BLACK plays optimally)
 			int minVal = minValue(resultState, curDepth+1);
-			
-			//Update maxVal (i.e. if we've found an action that leads to a better state than any previous actions, then we should update)
+
+			//Update maxMinVal (i.e. if we've found an action that leads to a better state than any previous actions, then we should update)
 			if(maxMinVal < minVal) {
 				maxMinVal = minVal;
 			}
 		}
 		return maxMinVal;
 	}
-	
+
 	//Min-value function; returns utility/evaluation value, aiming to minimize
 	private static int minValue(Pylos state, int curDepth) {
 		//Check if the state is a terminal state
@@ -514,30 +556,159 @@ public class PylosAI {
 			//If it is, return the utility of the state
 			return utility(state);
 		}
-		
+
 		//If it isn't, check if the depth limit has been reached
-		if(curDepth == DEPTH_LIMIT) {
+		if(curDepth == DEPTH_LIMIT_MINIMAX) {
 			//If depth limit has been reached, return evaluation of current state
-			return evaluate_simple(state);
+			return evaluate(state);
 		}
-		
+
 		//Otherwise, compute all actions possible by black player in current state
 		ArrayList<PylosMove> moves = actions(state, BLACK);
-		
+
 		//Start return value at positive infinity
 		int minMaxVal = (int) Double.POSITIVE_INFINITY;
-		
+
 		//Loop over all actions possible by BLACK
 		for(PylosMove curMove : moves) {
 			//Compute resulting state (after applying curMove to 'state')
 			Pylos resultState = result(state, curMove, BLACK);
-			
+
 			//Work out the smallest utility this action will lead me to (assuming WHITE plays optimally)
 			int maxVal = maxValue(resultState, curDepth+1);
-			
-			//Update minVal (i.e. if we've found an action that leads to a better state than any previous actions, then we should update)
+
+			//Update minMaxVal (i.e. if we've found an action that leads to a better state than any previous actions, then we should update)
 			if(minMaxVal > maxVal) {
 				minMaxVal = maxVal;
+			}
+		}
+		return minMaxVal;
+	}
+
+	//Returns move using alpha beta search on game tree
+	public static PylosMove alphaBetaSearch(Pylos state, int player) {
+		PylosMove move = null;
+
+		//If CPU is white
+		if(player == WHITE) {
+			//Compute all actions that can be performed
+			ArrayList<PylosMove> moves = actions(state, player);
+			int maxMinVal = (int) Double.NEGATIVE_INFINITY;
+			//Maximize the minimum value that the opponent can select
+			for(PylosMove curMove : moves) {
+				int minVal = minValueAB(result(state, curMove, player), 0, (int)Double.NEGATIVE_INFINITY, (int)Double.POSITIVE_INFINITY);
+				if(minVal > maxMinVal) {
+					maxMinVal = minVal;
+					move = curMove;
+				}
+			}
+		}
+
+		//If CPU is black
+		else if(player == BLACK) {
+			//Compute all actions that can be performed
+			ArrayList<PylosMove> moves = actions(state, player);
+			int minMaxVal = (int) Double.POSITIVE_INFINITY;
+			//Minimize the maximum value the opponent can select
+			for(PylosMove curMove : moves) {
+				int maxVal = maxValueAB(result(state, curMove, player), 0, (int)Double.NEGATIVE_INFINITY, (int)Double.POSITIVE_INFINITY);
+				if(maxVal < minMaxVal) {
+					minMaxVal = maxVal;
+					move = curMove;
+				}
+			}
+		}
+
+		return move;
+	}
+
+	//Variant of maxValue used for alpha beta search
+	private static int maxValueAB(Pylos state, int curDepth, int alpha, int beta) {
+		//Check if the state is a terminal state
+		if(terminal(state)) {
+			//If it is, return the utlity of the state
+			return utility(state);
+		}
+
+		//If it isn't, check if the depth limit has been reached
+		if(curDepth == DEPTH_LIMIT_ALPHABETA) {
+			//If depth limit has been reached, return evaluation of current state
+			return evaluate(state);
+		}
+
+		//Otherwise, compute all actions possible by white player in current state
+		ArrayList<PylosMove> moves = actions(state, WHITE);
+
+		//Start return value at negative infinity
+		int maxMinVal = (int) Double.NEGATIVE_INFINITY;
+
+		//Loop over all actions possible by WHITE
+		for(PylosMove curMove : moves) {
+			//Compute resulting state (after applying curMove to 'state')
+			Pylos resultState = result(state, curMove, WHITE);
+
+			//Work out the largest utility this action will lead me to (assuming BLACK plays optimally)
+			int minVal = minValueAB(resultState, curDepth+1, alpha, beta);
+
+			//Update maxMinVal (i.e. if we've found an action that leads to a better state than any previous actions, then we should update)
+			if(maxMinVal < minVal) {
+				maxMinVal = minVal;
+			}
+
+			//Check if maxMinVal exceeds beta
+			if(maxMinVal >= beta) {
+				return maxMinVal;
+			}
+
+			//Update alpha
+			if(alpha < maxMinVal) {
+				alpha = maxMinVal;
+			}
+		}
+		return maxMinVal;
+	}
+
+	//Variant of minValue used for alpha beta search
+	private static int minValueAB(Pylos state, int curDepth, int alpha, int beta) {
+		//Check if the state is a terminal state
+		if(terminal(state)) {
+			//If it is, return the utility of the state
+			return utility(state);
+		}
+
+		//If it isn't, check if the depth limit has been reached
+		if(curDepth == DEPTH_LIMIT_ALPHABETA) {
+			//If depth limit has been reached, return evaluation of current state
+			return evaluate(state);
+		}
+
+		//Otherwise, compute all actions possible by black player in current state
+		ArrayList<PylosMove> moves = actions(state, BLACK);
+
+		//Start return value at positive infinity
+		int minMaxVal = (int) Double.POSITIVE_INFINITY;
+
+		//Loop over all actions possible by BLACK
+		for(PylosMove curMove : moves) {
+			//Compute resulting state (after applying curMove to 'state')
+			Pylos resultState = result(state, curMove, BLACK);
+
+			//Work out the smallest utility this action will lead me to (assuming WHITE plays optimally)
+			int maxVal = maxValueAB(resultState, curDepth+1, alpha, beta);
+
+			//Update minMaxVal (i.e. if we've found an action that leads to a better state than any previous actions, then we should update)
+			if(minMaxVal > maxVal) {
+				minMaxVal = maxVal;
+			}
+
+			//Check if alpha exceeds minMaxVal
+			if(minMaxVal <= alpha) {
+				return minMaxVal;
+			}
+
+			//Update beta
+			if(beta > minMaxVal) {
+				beta = minMaxVal;
 			}
 		}
 		return minMaxVal;

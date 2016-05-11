@@ -54,11 +54,28 @@ public class Driver {
 			/*Check who is moving next*/
 			//AI moves
 			if(cur_player == cpu) {
-				//Calculate move and apply it to game board
-				PylosMove AIMove = PylosAI.minimax(game, cpu);
-				game.applyMove(AIMove, cpu);
+				/*Calculate move and apply it to game board*/
+				
+				//Calculate minimax move (and calculate how long it takes)
+				long startTime = System.nanoTime();
+				PylosMove MiniMaxMove = PylosAI.minimax(game, cpu);
+				long finishTime = System.nanoTime();
+				long duration = finishTime - startTime;
+				System.out.println("Minimax took " + duration/1000000000 + " seconds");
+				
+				//Calculate alpha beta move (and calculate how long it takes)
+				startTime = System.nanoTime();
+				PylosMove ABMove = PylosAI.alphaBetaSearch(game, cpu);
+				finishTime = System.nanoTime();
+				duration = finishTime - startTime;
+				System.out.println("Alpha beta took " + duration/1000000000 + " seconds");
+				
+				//Apply chosen move (alpha beta)
+				game.applyMove(ABMove, cpu);
+				
 				//Print move for human player to see
-				printMove(AIMove);
+				System.out.print("Alpha Beta Chose: "); printMove(ABMove);
+				System.out.print("Minimax Chose: "); printMove(MiniMaxMove);
 			}
 
 			//Human moves
