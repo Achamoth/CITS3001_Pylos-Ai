@@ -17,7 +17,7 @@ public class PylosAI {
 
 	//Depth limit on game search tree
 	private static final int DEPTH_LIMIT_MINIMAX = 5;
-	private static final int DEPTH_LIMIT_ALPHABETA = 7;
+	private static final int DEPTH_LIMIT_ALPHABETA = 5;
 
 	private static final int A = 0;
 	private static final int B = 1;
@@ -92,7 +92,7 @@ public class PylosAI {
 	 *Doing this simply allows me to very quickly change the evaluation function being used by the AI (only need to change the function call in here)
 	 */
 	private static int evaluate(Pylos state) {
-		return evaluate_height(state);
+		return evaluate_simple(state);
 	}
 
 	//Result function; computes resulting state when applying a given action to a given state
@@ -133,10 +133,6 @@ public class PylosAI {
 								int rem1[] = new int[3];
 
 								/*First, consider all possible single spheres that can be removed*/
-								//To start with, consider the simple case of removing the sphere that's just been placed
-								rem1[0] = tier; rem1[1] = pos[0]; rem1[2] = pos[1];
-								curMove = new PylosMove(PLACE, tier, pos, null, true, 1, rem1, null);
-								result.add(curMove);
 								//Now, consider all other possible spheres
 								for(int tier_removal=1; tier_removal < 4; tier_removal++) {
 									if(tier_removal == 1) {
@@ -212,11 +208,6 @@ public class PylosAI {
 								int rem1[] = new int[3];
 
 								/*First consider all possible single sphere removals*/
-								//Start with the simple case of removing the sphere we just added
-								rem1[0] = tier; rem1[1] = pos[0]; rem1[2] = pos[1];
-								curMove = new PylosMove(PLACE, tier, pos, null, true, 1, rem1, null);
-								result.add(curMove);
-								//Now, consider all other possible spheres
 								for(int tier_removal=1; tier_removal<4; tier_removal++) {
 									if(tier_removal == 1) {
 										for(int yrem=A; yrem<=D; yrem++) {
@@ -289,11 +280,7 @@ public class PylosAI {
 								int rem1[] = new int[3];
 
 								/*Consider all possible single sphere removals*/
-								//First, consider the simple case where we remove the sphere that's just been placed
-								rem1[0] = tier; rem1[1] = ypos; rem1[2] = xpos;
-								curMove = new PylosMove(PLACE, tier, pos, null, true, 1, rem1, null);
-								result.add(curMove);
-								//Now, consider all other spheres (only need to consider tiers 2 and 3, in this case)
+								//Now, consider all single spheres (only need to consider tiers 2 and 3, in this case)
 								int tier_removal = 3;
 								//We only need to consider tier 3 for single sphere removal
 								for(int yrem=H; yrem<=I; yrem++) {
@@ -565,7 +552,9 @@ public class PylosAI {
 							int ystart = yrem;
 							int xstart = xrem+1;
 							//First, calculate what position to start looking for second sphere at
-							if(yrem == G && xrem == 2) start_tier = 3; //Calculate tier
+							if(yrem == G && xrem == 2) {
+								start_tier = 3; //Calculate tier
+							}
 							if(start_tier == 2 && xrem == 2) {
 								//Calculate y position and x position
 								ystart = yrem + 1; 
@@ -575,8 +564,8 @@ public class PylosAI {
 							//And now find the second sphere
 							for(int tier_removal2 = start_tier; tier_removal2 < 4; tier_removal2++) {
 								if(tier_removal2 == 2) {
-									for(int yrem2=ystart; yrem<=G; yrem2++) {
-										for(int xrem2=xstart; xrem2<3; xrem2++) {
+									for(int yrem2=ystart; yrem2<=G; yrem2++) {
+ 										for(int xrem2=xstart; xrem2<3; xrem2++) {
 											if(state.canRemove(player, tier_removal2, yrem2, xrem2)) {
 												//This sphere can be removed. Record the position
 												rem2[0] = tier_removal2; rem2[1] = yrem2; rem2[2] = xrem2;

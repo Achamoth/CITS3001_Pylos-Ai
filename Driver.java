@@ -64,11 +64,11 @@ public class Driver {
 				System.out.println("Minimax took " + duration/1000000000 + " seconds");*/
 				
 				//Calculate alpha beta move (and calculate how long it takes)
-				//startTime = System.nanoTime();
+				long startTime = System.nanoTime();
 				PylosMove ABMove = PylosAI.alphaBetaSearch(game, cpu);
-				//finishTime = System.nanoTime();
-				//duration = finishTime - startTime;
-				//System.out.println("Alpha beta took " + duration/1000000000 + " seconds");
+				long finishTime = System.nanoTime();
+				long duration = finishTime - startTime;
+				System.out.println("Alpha beta took " + duration/1000000000 + " seconds");
 				
 				//Apply chosen move (alpha beta)
 				game.applyMove(ABMove, cpu);
@@ -167,9 +167,10 @@ public class Driver {
 			System.out.print(rem1y + "" + String.valueOf(rem1[2]+1));
 			//Calculate and print coordinates of removed sphere 2 (if applicable)
 			if(nremoved == 2) {
-				System.out.print(" and");
+				System.out.print(" and ");
 				int rem2[] = action.getRemovePos2();
 				char rem2y = Pylos.translateToLetter(rem2[0], rem2[1]);
+				System.out.print(rem2y + "" + String.valueOf(rem2[2]+1));
 			}
 			System.out.print("\n");
 		}
