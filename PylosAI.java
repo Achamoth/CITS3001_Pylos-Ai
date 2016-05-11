@@ -131,7 +131,6 @@ public class PylosAI {
 							if(testState.checkForRemove(tier, ypos, xpos)) {
 								//If it does, consider all possible follow-ups
 								int rem1[] = new int[3];
-								int rem2[] = new int[3];
 
 								/*First, consider all possible single spheres that can be removed*/
 								//To start with, consider the simple case of removing the sphere that's just been placed
@@ -178,7 +177,8 @@ public class PylosAI {
 									}
 								}
 
-								//TODO:Consider all possible pairs of spheres that can be removed
+								//Consider all possible pairs of spheres that can be removed
+								addSpherePairRemovals(result, testState, PLACE, tier, pos, null, player);
 							}
 							else {
 								//Otherwise, no spheres need to be removed
@@ -210,7 +210,6 @@ public class PylosAI {
 							if(testState.checkForRemove(tier, ypos, xpos)) {
 								//If it does, consider all possible follow ups
 								int rem1[] = new int[3];
-								int rem2[] = new int[3];
 
 								/*First consider all possible single sphere removals*/
 								//Start with the simple case of removing the sphere we just added
@@ -257,7 +256,8 @@ public class PylosAI {
 									}
 								}
 
-								//TODO: Consider all possible pairs of spheres that can be removed
+								//Consider all possible pairs of spheres that can be removed
+								addSpherePairRemovals(result, testState, PLACE, tier, pos, null, player);
 							}
 							else {
 								//Otherwise, a follow up is not needed
@@ -287,7 +287,6 @@ public class PylosAI {
 							if(testState.checkForRemove(tier, ypos, xpos)) {
 								//If it does, consider all possible follow ups
 								int rem1[] = new int[3];
-								int rem2[] = new int[3];
 
 								/*Consider all possible single sphere removals*/
 								//First, consider the simple case where we remove the sphere that's just been placed
@@ -308,7 +307,8 @@ public class PylosAI {
 									}
 								}
 
-								//TODO: Consider all possible pairs of spheres that can be removed
+								//Consider all possible pairs of spheres that can be removed
+								addSpherePairRemovals(result, testState, PLACE, tier, pos, null, player);
 							}
 							else {
 								//Otherwise, a follow up is not needed
@@ -363,9 +363,8 @@ public class PylosAI {
 													if(testState.checkForRemove(tier_dest, yDest, xDest)) {
 														//If it does, compute all possible removals
 														int rem1[] = new int[3];
-														int rem2[] = new int[3];
 
-														//TODO: Consider all possible pairs of spheres that can be removed
+														//Consider all single sphere removals
 														int tier_removal = 1;
 														for(tier_removal=1; tier_removal<4; tier_removal++) {
 															if(tier_removal == 1) {
@@ -405,6 +404,10 @@ public class PylosAI {
 																}
 															}
 														}
+
+														//Consider all possible pairs of spheres that can be removed
+														addSpherePairRemovals(result, testState, RAISE, tier_dest, destPos, sourcePos, player);
+
 													}
 
 													else {
@@ -470,6 +473,182 @@ public class PylosAI {
 
 		//Now, return array-list containing all valid moves
 		return result;
+	}
+
+	//Called within actions() to determine all possible configurations of moves involving placing/raising a sphere at specified position(s) on a specified game board, and following up with the removal of 2 spheres
+	//Method adds all such actions to the 'result' arraylist passed to it (and returned) by actions()
+	private static void addSpherePairRemovals(ArrayList<PylosMove> result, Pylos state, int moveType, int tier_dest, int destPos[], int sourcePos[], int player) {
+		int rem1[] = new int[3];
+		int rem2[] = new int[3];
+
+		//First, find first sphere that can be removed
+		for(int tier_removal=1; tier_removal<4; tier_removal++) {
+			if(tier_removal == 1) {
+				for(int yrem=A; yrem<=D; yrem++) {
+					for(int xrem=0; xrem<4; xrem++) {
+						if(state.canRemove(player, tier_removal, yrem, xrem)) {
+							//This sphere can be removed. Record the position
+							rem1[0] = tier_removal; rem1[1] = yrem; rem1[2] = xrem;
+
+							/*Now find second sphere that can be removed*/
+							int start_tier = 1;
+							int ystart = yrem;
+							int xstart = xrem+1;
+							
+							//First, calculate what position to start looking for second sphere at
+							if(yrem == D && xrem == 3) start_tier = 2; //Calculate tier
+							if(start_tier == 1 && xrem == 3) {
+								//Calculate y and x positions
+								ystart = yrem+1; 
+								xstart = 0; 
+							}
+
+							//And now find it
+							for(int tier_removal2=start_tier; tier_removal2<4; tier_removal2++) {
+								if(tier_removal2 == 1) {
+									for(int yrem2=ystart; yrem2<=D; yrem2++) {
+										for(int xrem2=xstart; xrem2<4; xrem2++) {
+											if(state.canRemove(player, tier_removal2, yrem2, xrem2)) {
+												//This sphere can be removed. Record the position
+												rem2[0] = tier_removal2; rem2[1] = yrem2; rem2[2] = xrem2;
+
+												//Now generate and store action
+												PylosMove newMove = new PylosMove(moveType, tier_dest, destPos, sourcePos, true, 2, rem1, rem2);
+												result.add(newMove);
+											}
+										}
+										xstart = 0;
+									}
+								}
+								else if(tier_removal2 == 2) {
+									for(int yrem2=E; yrem2<=G; yrem2++) {
+										for(int xrem2=0; xrem2<3; xrem2++) {
+											if(state.canRemove(player, tier_removal2, yrem2, xrem2)) {
+												//This sphere can be removed. Record the position
+												rem2[0] = tier_removal2; rem2[1] = yrem2; rem2[2] = xrem2;
+
+												//Now generate and store action
+												PylosMove newMove = new PylosMove(moveType, tier_dest, destPos, sourcePos, true, 2, rem1, rem2);
+												result.add(newMove);
+											}
+										}
+									}
+								}
+								else if(tier_removal2 == 3) {
+									for(int yrem2=H; yrem2<=I; yrem2++) {
+										for(int xrem2=0; xrem2<2; xrem2++) {
+											if(state.canRemove(player, tier_removal2, yrem2, xrem2)) {
+												//This sphere can be removed. Record the position
+												rem2[0] = tier_removal2; rem2[1] = yrem2; rem2[2] = xrem2;
+
+												//Now generate and store action
+												PylosMove newMove = new PylosMove(moveType, tier_dest, destPos, sourcePos, true, 2, rem1, rem2);
+												result.add(newMove);
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			else if(tier_removal == 2) {
+				for(int yrem=E; yrem<=G; yrem++) {
+					for(int xrem=0; xrem<3; xrem++) {
+						if(state.canRemove(player, tier_removal, yrem, xrem)) {
+							//This sphere can be removed. Record position
+							rem1[0] = tier_removal; rem1[1] = yrem; rem1[2] = xrem;
+
+							/*Now find second sphere that can be removed*/
+							int start_tier = 2;
+							int ystart = yrem;
+							int xstart = xrem+1;
+							//First, calculate what position to start looking for second sphere at
+							if(yrem == G && xrem == 2) start_tier = 3; //Calculate tier
+							if(start_tier == 2 && xrem == 2) {
+								//Calculate y position and x position
+								ystart = yrem + 1; 
+								xstart = 0; 
+							}
+
+							//And now find the second sphere
+							for(int tier_removal2 = start_tier; tier_removal2 < 4; tier_removal2++) {
+								if(tier_removal2 == 2) {
+									for(int yrem2=ystart; yrem<=G; yrem2++) {
+										for(int xrem2=xstart; xrem2<3; xrem2++) {
+											if(state.canRemove(player, tier_removal2, yrem2, xrem2)) {
+												//This sphere can be removed. Record the position
+												rem2[0] = tier_removal2; rem2[1] = yrem2; rem2[2] = xrem2;
+
+												//Now generate and store action
+												PylosMove newMove = new PylosMove(moveType, tier_dest, destPos, sourcePos, true, 2, rem1, rem2);
+												result.add(newMove);
+											}
+										}
+										xstart = 0;
+									}
+								}
+								else if(tier_removal2 == 3) {
+									for(int yrem2=H; yrem2<=I; yrem2++) {
+										for(int xrem2=0; xrem2<2; xrem2++) {
+											if(state.canRemove(player, tier_removal2, yrem2, xrem2)) {
+												//This sphere can be removed. Record the position
+												rem2[0] = tier_removal2; rem2[1] = yrem2; rem2[2] = xrem2;
+
+												//Now generate and store the action
+												PylosMove newMove = new PylosMove(moveType, tier_dest, destPos, sourcePos, true, 2, rem1, rem2);
+												result.add(newMove);
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			else if(tier_removal == 3) {
+				for(int yrem=H; yrem<=I; yrem++) {
+					for(int xrem=0; xrem<2; xrem++) {
+						if(state.canRemove(player, tier_removal, yrem, xrem)) {
+							//This sphere can be removed. Record the position
+							rem1[0] = tier_removal; rem1[1] = yrem; rem1[2] = xrem;
+
+							/*Now find second sphere that can be removed*/
+							//First, make sure we aren't on the last sphere
+							if(xrem != 1 || yrem != I) {
+								//Next sphere to be removed will be on tier 3 (we've already considered all others earlier in the function)
+								int tier_removal2 = 3;
+								int xstart = xrem+1;
+								int ystart = yrem;
+								//First, calculate what position to start looking for second sphere at
+								if(xrem == 1){
+									ystart = yrem+1;
+									xstart = 0;
+								}
+								//And now find the second sphere
+								for(int yrem2=ystart; yrem2<=I; yrem2++) {
+									for(int xrem2=xstart; xrem2<2; xrem2++) {
+										if(state.canRemove(player, tier_removal2, yrem2, xrem2)) {
+											//This sphere can be removed. Record the position
+											rem2[0] = tier_removal2; rem2[1] = yrem2; rem2[2] = xrem2;
+											
+											//Now generate and store action
+											PylosMove newMove = new PylosMove(moveType, tier_dest, destPos, sourcePos, true, 2, rem1, rem2);
+										}
+									}
+									xstart = 0;
+								}
+							}
+							else {
+								//We've now considered all spheres, so simply do nothing and let the method end
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 
 	/*

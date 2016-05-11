@@ -802,7 +802,6 @@ public class Pylos {
 			second_tier[ySource][xSource] = EMPTY;
 		}
 		//Now, add it to dest
-		//TODO: Test the code below. I edited it to allow raising spheres from tier 1 to tier 3 (was previously assuming spheres will only be raised one level)
 		if(tier_source == 1) {
 			if(tier_dest == 2) second_tier[yDest][xDest] = player;
 			else if(tier_dest == 3) third_tier[yDest][xDest] = player;
