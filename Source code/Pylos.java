@@ -302,7 +302,7 @@ public class Pylos {
 		int tier_source = find_tier(source.charAt(0));
 
 		//Check that source coordinate is valid
-		if(!canRaise(player, tier_source, xSource, ySource)) {
+		if(!canRaise(player, tier_source, ySource, xSource)) {
 			//If it isn't, ask user for another source coordinate
 			boolean valid = false;
 			while(!valid) {
@@ -311,14 +311,14 @@ public class Pylos {
 				String coordinates = sc.next();
 
 				try {
-					//Convert enterd coordinates into usable form
+					//Convert entered coordinates into usable form
 					ySource = interpret(coordinates.charAt(0));
 					xSource = coordinates.charAt(1) - '0';
 					xSource--;
-					tier_source = find_tier(source.charAt(0));
+					tier_source = find_tier(coordinates.charAt(0));
 
 					//Check if newly provided coordinates are valid
-					valid = canRaise(player, tier_source, xSource, ySource);
+					valid = canRaise(player, tier_source, ySource, xSource);
 				} catch(Exception e) {
 					System.out.println("Invalid input");
 					continue;
