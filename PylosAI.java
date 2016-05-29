@@ -16,8 +16,13 @@ public class PylosAI {
 	private static final int BLACK = 2;
 
 	//Depth limit on game search tree
-	private static final int DEPTH_LIMIT_MINIMAX = 5;
-	private static final int DEPTH_LIMIT_ALPHABETA = 5;
+	private static int DEPTH_LIMIT_MINIMAX = 5;
+	private static int DEPTH_LIMIT_ALPHABETA = 5;
+	
+	//Assigns constant number to each evaluation function
+	private static final int EVALUATE_SIMPLE = 15;
+	private static final int EVALUATE_HEIGHT = 20;
+	private static final int EVALUATE_SIMPLE_BLOCKER = 25;
 
 	private static final int A = 0;
 	private static final int B = 1;
@@ -29,6 +34,8 @@ public class PylosAI {
 	private static final int H = 0;
 	private static final int I = 1;
 	private static final int J = 0;
+	
+	private static int curEvalFunction = EVALUATE_SIMPLE;
 
 	//Utility function; looks at state (and maybe depth, in the future), and determines utility, if it's a terminal state (utility determined from perspective of specified player)
 	private static int utility(Pylos state) {
@@ -46,24 +53,26 @@ public class PylosAI {
 	}
 
 	//A simple evaluation function that looks at the number of spheres retained by each player, and computes an evaluation for specified player
-	private static int evaluate_simple(Pylos state) {
+	private static int evaluate_simple(Pylos state, int player) {
 		//To start with, we'll use a simple evaluation function that just compares number of spheres
+		int result;
 		int whiteSpheres = state.sphereCount(WHITE);
 		int blackSpheres = state.sphereCount(BLACK);
-		int result = (whiteSpheres - blackSpheres) * 10; //Maximizing value from white's perspective 
+		if(player == WHITE) result = (-10 * (15 - whiteSpheres)) + (20 * (15 - blackSpheres));
+		else result = (10 * (15 - blackSpheres)) + (-20 * (15 - whiteSpheres));
 		return result;
 	}
 
 	//Second evaluation function written; extends on evaluate_simple. This function considers number of spheres placed, but also what tier they've been placed on (higher is better)
-	private static int evaluate_height(Pylos state) {
+	private static int evaluate_height(Pylos state, int player) {
 		int result = 0;
 
 		//Find number of spheres placed by each player on the bottom tier, and each has a weight of 15 or -15 (black spheres or white spheres, respectively)
 		int bottom_tier[][] = state.getBottom();
 		for(int y=A; y<=E; y++) {
 			for(int x=0; x<4; x++) {
-				if(bottom_tier[y][x] == WHITE) result -= 15;
-				else if(bottom_tier[y][x] == BLACK) result += 15;
+				if(bottom_tier[y][x] == WHITE) result -= 50;
+				else if(bottom_tier[y][x] == BLACK) result += 50;
 			}
 		}
 
@@ -71,8 +80,8 @@ public class PylosAI {
 		int second_tier[][] = state.getSecond();
 		for(int y=E; y<=G; y++) {
 			for(int x=0; x<3; x++) {
-				if(second_tier[y][x] == WHITE) result -= 7;
-				else if(second_tier[y][x] == BLACK) result += 7;
+				if(second_tier[y][x] == WHITE) result -= 5;
+				else if(second_tier[y][x] == BLACK) result += 5;
 			}
 		}
 
@@ -80,19 +89,48 @@ public class PylosAI {
 		int third_tier[][] = state.getThird();
 		for(int y=H; y<=I; y++) {
 			for(int x=0; x<2; x++) {
-				if(third_tier[y][x] == WHITE) result -= 2;
-				else if(third_tier[y][x] == BLACK) result += 2;
+				if(third_tier[y][x] == WHITE) result -= 1;
+				else if(third_tier[y][x] == BLACK) result += 1;
 			}
 		}
-
+		
+		if(player == WHITE) result -= state.sphereCount(WHITE) * 40;
+		else result += state.sphereCount(BLACK) * 40;
+		
 		return result;
 	}
+	
+	//Third evaluation function; this simply tries to maximize number of opponent's spheres on the board
+	private static int evaluate_simple_blocker(Pylos state, int player) {
+		if(player == WHITE) return (15 - state.sphereCount(BLACK)) * 10;
+		else return (state.sphereCount(WHITE) - 15) * 10;
+	}
 
-	/*Evaluate function currently in use by AI; it simply calls another evaluation function.
+	/*
+	 *Evaluate function currently in use by AI; it simply calls another evaluation function.
 	 *Doing this simply allows me to very quickly change the evaluation function being used by the AI (only need to change the function call in here)
 	 */
-	private static int evaluate(Pylos state) {
-		return evaluate_simple(state);
+	private static int evaluate(Pylos state, int player) {
+		if(curEvalFunction == EVALUATE_SIMPLE) return evaluate_simple(state, player);
+		else if (curEvalFunction == EVALUATE_HEIGHT) return evaluate_height(state, player);
+		else if(curEvalFunction == EVALUATE_SIMPLE_BLOCKER) return evaluate_simple_blocker(state,player);
+		return evaluate_simple(state, player); //Default to this
+	}
+	
+	//Sets the evaluation function in use by the AI
+	public static void setEvaluateFunction(String func) {
+		if(func.equalsIgnoreCase("simple")) {
+			curEvalFunction = EVALUATE_SIMPLE;
+			DEPTH_LIMIT_ALPHABETA = 5;
+		}
+		else if(func.equalsIgnoreCase("height")) {
+			curEvalFunction = EVALUATE_HEIGHT;
+			DEPTH_LIMIT_ALPHABETA = 4;
+		}
+		else if(func.equalsIgnoreCase("simple blocker")) {
+			curEvalFunction = EVALUATE_SIMPLE_BLOCKER;
+			DEPTH_LIMIT_ALPHABETA = 5;
+		}
 	}
 
 	//Result function; computes resulting state when applying a given action to a given state
@@ -692,7 +730,7 @@ public class PylosAI {
 		//If it isn't, check if the depth limit has been reached
 		if(curDepth == DEPTH_LIMIT_MINIMAX) {
 			//If depth limit has been reached, return evaluation of current state
-			return evaluate(state);
+			return evaluate(state, WHITE);
 		}
 
 		//Otherwise, compute all actions possible by white player in current state
@@ -728,7 +766,7 @@ public class PylosAI {
 		//If it isn't, check if the depth limit has been reached
 		if(curDepth == DEPTH_LIMIT_MINIMAX) {
 			//If depth limit has been reached, return evaluation of current state
-			return evaluate(state);
+			return evaluate(state, BLACK);
 		}
 
 		//Otherwise, compute all actions possible by black player in current state
@@ -801,7 +839,7 @@ public class PylosAI {
 		//If it isn't, check if the depth limit has been reached
 		if(curDepth == DEPTH_LIMIT_ALPHABETA) {
 			//If depth limit has been reached, return evaluation of current state
-			return evaluate(state);
+			return evaluate(state, WHITE);
 		}
 
 		//Otherwise, compute all actions possible by white player in current state
@@ -847,7 +885,7 @@ public class PylosAI {
 		//If it isn't, check if the depth limit has been reached
 		if(curDepth == DEPTH_LIMIT_ALPHABETA) {
 			//If depth limit has been reached, return evaluation of current state
-			return evaluate(state);
+			return evaluate(state, BLACK);
 		}
 
 		//Otherwise, compute all actions possible by black player in current state

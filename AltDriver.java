@@ -1,7 +1,11 @@
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class Driver {
+/*
+ * The purpose of this class is to facilitate matches between AI's using different evaluation functions
+ */
+
+public class AltDriver {
 
 	//Game players
 	private final static int WHITE = 1;
@@ -20,29 +24,16 @@ public class Driver {
 
 		//Ask player what side they want to play as
 		String human = "";
-		int man = 0;
-		int cpu = 0;
-		boolean valid = false;
-		while(!valid) {
-			System.out.print("Would you like to play as WHITE or BLACK: ");
-			Scanner in = new Scanner(System.in);
-			human = in.next().toLowerCase();
-			if(human.equals("white")) {cpu = BLACK; valid = true; man = WHITE;} 
-			else if(human.equals("black")) {cpu = WHITE; valid = true; man = BLACK;}
-			else {
-				System.out.println("Error. Invalid input. Please enter WHITE or BLACK");
-			}
-		}
-
-		//Report to player what side they are playing as
-		System.out.println("Okay, you are playing as " + human + "\n\n");
+		int cpu1 = WHITE;
+		int cpu2 = BLACK;
 
 		//Set up data needed to run game
 		boolean complete = false; //Records when game has terminated
 		int cur_player = WHITE; //Records the player who is moving next (white starts first)
 
-		//Assign AI evaluation function
-		PylosAI.setEvaluateFunction("simple blocker");
+		//Assign each AI's evaluation function
+		String whiteEval = "simple";
+		String blackEval = "height";
 		
 		/*Start game*/
 		while(!complete) {
@@ -56,58 +47,45 @@ public class Driver {
 
 			/*Check who is moving next*/
 			//AI moves
-			if(cur_player == cpu) {
+			if(cur_player == cpu1) {
 				/*Calculate move and apply it to game board*/
 				
-				//Calculate minimax move (and calculate how long it takes)
-				/*long startTime = System.nanoTime();
-				PylosMove MiniMaxMove = PylosAI.minimax(game, cpu);
-				long finishTime = System.nanoTime();
-				long duration = finishTime - startTime;
-				System.out.println("Minimax took " + duration/1000000000 + " seconds");*/
+				//Set current evaluation function to simple
+				PylosAI.setEvaluateFunction(whiteEval);
 				
 				//Calculate alpha beta move (and calculate how long it takes)
 				long startTime = System.nanoTime();
-				PylosMove ABMove = PylosAI.alphaBetaSearch(game, cpu);
+				PylosMove ABMove = PylosAI.alphaBetaSearch(game, cpu1);
 				long finishTime = System.nanoTime();
 				long duration = finishTime - startTime;
 				System.out.println("Alpha beta took " + duration/1000000000 + " seconds");
 				
 				//Apply chosen move (alpha beta)
-				game.applyMove(ABMove, cpu);
+				game.applyMove(ABMove, cpu1);
 				
-				//Print move for human player to see
-				//System.out.print("Alpha Beta Chose: "); 
+				//Print move for human player to see 
 				printMove(ABMove);
-				//System.out.print("Minimax Chose: "); printMove(MiniMaxMove);
 			}
 
-			//Human moves
-			else if(cur_player == man) {
-				//Ask human to provide move
-				System.out.print("What is your move: ");
-				Scanner sc = new Scanner(System.in);
-				String nextMove = sc.nextLine().trim().toLowerCase();
-				String tokens[] = nextMove.split(" ");
-				String moveType = tokens[0];
-				if(moveType.equals("place")) {
-					//Player wants to place sphere at specified position
-					String pos = tokens[1];
-					//TODO: Error checking
-					//Make move on game board
-					game.place(cur_player, pos);
-				}
-				else if(moveType.equals("raise")) {
-					//Player wants to raise a sphere from one tier to another
-					String source = tokens[1];
-					String dest = tokens[2];
-					//TODO: Error checking
-					//Make move on game board
-					game.raise(cur_player, source, dest);
-				}
-				else {
-					//TODO: Error
-				}
+			//Second AI moves
+			else if(cur_player == cpu2) {
+				/*Calculate move and apply it to game board*/
+				
+				//Set current evaluation function to height
+				PylosAI.setEvaluateFunction(blackEval);
+				
+				//Calculate alpha beta move (and calculate how long it takes)
+				long startTime = System.nanoTime();
+				PylosMove ABMove = PylosAI.alphaBetaSearch(game, cpu2);
+				long finishTime = System.nanoTime();
+				long duration = finishTime - startTime;
+				System.out.println("Alpha beta took " + duration/1000000000 + " seconds");
+				
+				//Apply chosen move (alpha beta)
+				game.applyMove(ABMove, cpu2);
+				
+				//Print move for human tester to see 
+				printMove(ABMove);
 			}
 
 			//Update cur_player
@@ -125,6 +103,10 @@ public class Driver {
 		int winner = game.winner();
 		if(winner == WHITE) System.out.println("White won!");
 		else if(winner == BLACK) System.out.println("Black won!");
+		
+		//Print evaluation function in use by each color player
+		System.out.println("White was using " + "\'" + whiteEval + "\'");
+		System.out.println("Black was using " + "\'" + blackEval + "\'");
 	}
 	
 	//Print a move in a human readable format

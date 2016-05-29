@@ -1,0 +1,37 @@
+Evaluation Functions:
+
+
+Match 1: 	Simple vs SB
+Values:		SB: opponent = 10			Simple: white = black
+Notes:		SB: Just block opponent			Simple: Even weighting
+Winner: 	Simple
+Mode:		SB ran out of spheres
+Spheres left:	Simple had 1 left 
+
+Match 2:	Simple vs SB
+Values:		SB: opponent = 10;			Simple: player = 10, opponent = 20
+Notes:		SB: Just block opponent			Simple: Prioritise blocking opponent
+Winner:		SB
+Mode:		Simple ran out of spheres
+Spheres left:	SB had 2 left
+
+Match 3:	Simple vs Height
+Values:		Simple: player = 10, opponent = 20	Height: tier1 = 50, tier2 = 5, tier 3 = 1
+Notes:		Simple: Prioritise blocking opponent	Height: Place at higher tiers
+Winner:		Simple
+Mode:		Height ran out of spheres
+Spheres left:	Simple had 4 spheres left
+
+Match 4:	Simple vs Height
+Values:		Simple: player = 10, opponent = 20	Height: tier1=50, tier2=20, tier3=2; pSpheres=10
+Notes:		Simple: prioritise blocking opponent	Height: Place at higher tiers; minimise placed spheres
+Winner:		Simple
+Mode:		Height ran out of spheres
+Spheres left:	Simple had 3 spheres left
+
+Match 4:	Simple vs Height
+Values:		Simple: player = 10, opponent = 20	Height: tier1=50, tier2=20, tier3=2; pSpheres=40
+Notes:		Simple: prioritise blocking opponent	Height: Place at higher tiers; DON’T PLACE SPHERES
+Winner:		Simple
+Mode:		Height ran out of spheres
+Spheres left:	Simple had 4 spheres left
