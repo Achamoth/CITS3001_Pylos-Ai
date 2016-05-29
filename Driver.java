@@ -42,7 +42,7 @@ public class Driver {
 		int cur_player = WHITE; //Records the player who is moving next (white starts first)
 
 		//Assign AI evaluation function
-		PylosAI.setEvaluateFunction("simple blocker");
+		PylosAI.setEvaluateFunction("height");
 		
 		/*Start game*/
 		while(!complete) {

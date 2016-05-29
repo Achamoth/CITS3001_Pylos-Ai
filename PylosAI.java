@@ -58,8 +58,8 @@ public class PylosAI {
 		int result;
 		int whiteSpheres = state.sphereCount(WHITE);
 		int blackSpheres = state.sphereCount(BLACK);
-		if(player == WHITE) result = (-10 * (15 - whiteSpheres)) + (20 * (15 - blackSpheres));
-		else result = (10 * (15 - blackSpheres)) + (-20 * (15 - whiteSpheres));
+		if(player == WHITE) result = (-30 * (15 - whiteSpheres)) + (10 * (15 - blackSpheres));
+		else result = (30 * (15 - blackSpheres)) + (-10 * (15 - whiteSpheres));
 		return result;
 	}
 
@@ -71,8 +71,8 @@ public class PylosAI {
 		int bottom_tier[][] = state.getBottom();
 		for(int y=A; y<=E; y++) {
 			for(int x=0; x<4; x++) {
-				if(bottom_tier[y][x] == WHITE) result -= 50;
-				else if(bottom_tier[y][x] == BLACK) result += 50;
+				if(bottom_tier[y][x] == WHITE) result -= 20;
+				else if(bottom_tier[y][x] == BLACK) result += 20;
 			}
 		}
 
@@ -80,8 +80,8 @@ public class PylosAI {
 		int second_tier[][] = state.getSecond();
 		for(int y=E; y<=G; y++) {
 			for(int x=0; x<3; x++) {
-				if(second_tier[y][x] == WHITE) result -= 5;
-				else if(second_tier[y][x] == BLACK) result += 5;
+				if(second_tier[y][x] == WHITE) result += 10;
+				else if(second_tier[y][x] == BLACK) result -= 10;
 			}
 		}
 
@@ -89,13 +89,13 @@ public class PylosAI {
 		int third_tier[][] = state.getThird();
 		for(int y=H; y<=I; y++) {
 			for(int x=0; x<2; x++) {
-				if(third_tier[y][x] == WHITE) result -= 1;
-				else if(third_tier[y][x] == BLACK) result += 1;
+				if(third_tier[y][x] == WHITE) result += 16;
+				else if(third_tier[y][x] == BLACK) result -= 16;
 			}
 		}
 		
-		if(player == WHITE) result -= state.sphereCount(WHITE) * 40;
-		else result += state.sphereCount(BLACK) * 40;
+		if(player == WHITE) result -= state.sphereCount(BLACK) * 20;
+		else result += state.sphereCount(WHITE) * 20;
 		
 		return result;
 	}
@@ -125,7 +125,7 @@ public class PylosAI {
 		}
 		else if(func.equalsIgnoreCase("height")) {
 			curEvalFunction = EVALUATE_HEIGHT;
-			DEPTH_LIMIT_ALPHABETA = 4;
+			DEPTH_LIMIT_ALPHABETA = 5;
 		}
 		else if(func.equalsIgnoreCase("simple blocker")) {
 			curEvalFunction = EVALUATE_SIMPLE_BLOCKER;
