@@ -134,18 +134,22 @@ public class Pylos {
 				System.out.println("Sphere cannot be placed there. Please enter another destination coordinate: ");
 				Scanner sc = new Scanner(System.in);
 				String coordinates = sc.next();
-				//TODO: Will probably want to do some error checking on the input to make sure it's actually a valid coordinate
 
-				//Convert entered coordinates into usable form
-				pos1 = interpret(coordinates.charAt(0));
-				pos2 = coordinates.charAt(1) - '0';
-				pos2--;
+				try {
+					//Convert entered coordinates into usable form
+					pos1 = interpret(coordinates.charAt(0));
+					pos2 = coordinates.charAt(1) - '0';
+					pos2--;
 
-				//Calulate tier
-				tier = find_tier(coordinates.charAt(0));
+					//Calulate tier
+					tier = find_tier(coordinates.charAt(0));
 
-				//Check if newly provided coordinates are valid
-				valid = canPlace(tier, pos2, pos1);
+					//Check if newly provided coordinates are valid
+					valid = canPlace(tier, pos2, pos1);
+				} catch(Exception e) {
+					System.out.println("Invalid input");
+					continue;
+				}
 			}
 		}
 
@@ -166,10 +170,26 @@ public class Pylos {
 		if(!this.complete) {
 			boolean mustRemove = checkForRemove(tier, pos1, pos2);
 			if(mustRemove) {
+				//First, inform player they must remove spheres
 				System.out.println("You must remove 1/2 piece(s)");
-				System.out.print("How many pieces do you want to remove:");
-				Scanner sc = new Scanner(System.in);
-				int npieces = sc.nextInt();
+				
+				//Now ask them how many spheres they want to remove
+				boolean valid = false;
+				int npieces = 0;
+				while(!valid) {
+					System.out.print("How many pieces do you want to remove:");
+					Scanner sc = new Scanner(System.in);
+					try {
+						npieces = sc.nextInt();
+						if(npieces == 1 || npieces == 2) valid = true;
+						else System.out.println("Invalid number of pieces");
+					} catch(Exception e) {
+						System.out.println("Invalid input. Please enter 1 or 2");
+						continue;
+					}
+				}
+				
+				//Now, prompt player for pieces to remove
 				remove(player, npieces);
 			}
 			else {
@@ -190,10 +210,22 @@ public class Pylos {
 			Scanner sc = new Scanner(System.in);
 			String coordinates = sc.next();
 
+			int ypos;
+			int xpos;
+			
+			try {
 			//Convert string input into usable values
-			int ypos = interpret(coordinates.charAt(0));
-			int xpos = coordinates.charAt(1) - '0';
+			ypos = interpret(coordinates.charAt(0));
+			xpos = coordinates.charAt(1) - '0';
 			xpos--;
+			if(coordinates.length() > 2) {
+				System.out.println("Error. Invalid coordinates");
+				continue;
+			}
+			} catch(Exception e) {
+				System.out.println("Invalid input");
+				continue;
+			}
 
 			//Check that the sphere at the specified position belongs to the player
 			int tier = find_tier(coordinates.charAt(0));
@@ -269,6 +301,31 @@ public class Pylos {
 		//Calculate tier of source coordinate
 		int tier_source = find_tier(source.charAt(0));
 
+		//Check that source coordinate is valid
+		if(!canRaise(player, tier_source, xSource, ySource)) {
+			//If it isn't, ask user for another source coordinate
+			boolean valid = false;
+			while(!valid) {
+				System.out.println("Sphere cannot be raised from there. Please enter another source coordinate: ");
+				Scanner sc = new Scanner(System.in);
+				String coordinates = sc.next();
+
+				try {
+					//Convert enterd coordinates into usable form
+					ySource = interpret(coordinates.charAt(0));
+					xSource = coordinates.charAt(1) - '0';
+					xSource--;
+					tier_source = find_tier(source.charAt(0));
+
+					//Check if newly provided coordinates are valid
+					valid = canRaise(player, tier_source, xSource, ySource);
+				} catch(Exception e) {
+					System.out.println("Invalid input");
+					continue;
+				}
+			}
+		}
+
 		//Check that destination coordinate is valid
 		if(!canPlace(tier_source+1, xDest, yDest)) {
 			//If it isn't, ask user for another destination coordinate
@@ -278,16 +335,21 @@ public class Pylos {
 				Scanner sc = new Scanner(System.in);
 				String coordinates = sc.next();
 
-				//Convert entered coordinates into usable form
-				yDest = interpret(coordinates.charAt(0));
-				xDest = coordinates.charAt(1) - '0';
-				xDest--;
+				try {
+					//Convert entered coordinates into usable form
+					yDest = interpret(coordinates.charAt(0));
+					xDest = coordinates.charAt(1) - '0';
+					xDest--;
 
-				//Calulate tier
-				int tier_dest = find_tier(coordinates.charAt(0));
+					//Calulate tier
+					int tier_dest = find_tier(coordinates.charAt(0));
 
-				//Check if newly provided coordinates are valid
-				valid = canPlace(tier_dest, xDest, yDest);
+					//Check if newly provided coordinates are valid
+					valid = canPlace(tier_dest, xDest, yDest);
+				} catch(Exception e) {
+					System.out.println("Invalid input");
+					continue;
+				}
 			}
 		}
 
@@ -435,7 +497,7 @@ public class Pylos {
 			//If it is empty, simply return false
 			return false;
 		}
-		
+
 		//Check for vertical line
 		count = 0;
 		int i;
@@ -471,8 +533,8 @@ public class Pylos {
 		boolean rightAndUp = false;
 		boolean right = false;
 		boolean rightAndDown = false;
-		
-		
+
+
 		//Left and up
 		if(xpos-1 >= 0 && ypos-1 >= 0) {
 			if(tier[ypos-1][xpos-1] == tier[ypos][xpos]) leftAndUp = true;
@@ -505,7 +567,7 @@ public class Pylos {
 		if(xpos+1 <= array_bound && ypos+1 <= array_bound) {
 			if(tier[ypos+1][xpos+1] == tier[ypos][xpos]) rightAndDown = true;
 		}
-		
+
 		/*Each sphere can be a corner of 4 squares*/
 		//Square 1: Up, Left, Left and Up
 		if(up && left && leftAndUp) return true;
@@ -648,7 +710,7 @@ public class Pylos {
 		this.third_tier = array_copy(tTier, 2);
 		this.top_tier = array_copy(topTier, 1);
 	}
-	
+
 	//Creates new 2D array and copies existing 2d array contents into it (used to copy tiers)
 	private int[][] array_copy(int[][] tier, int size) {
 		int[][] result = new int[size][size];
@@ -709,7 +771,7 @@ public class Pylos {
 
 			//Add sphere to specified position
 			place(player, tier, xTo, yTo);
-			
+
 			if(action.isRemove()) {
 				int spheresToRemove = action.getNumberOfSpheresToRemove();
 				for(int i=0; i<spheresToRemove; i++) {
@@ -765,13 +827,13 @@ public class Pylos {
 		int pos2 = pos.charAt(1) - '0';
 		pos2--;
 		int tier = find_tier(letter);
-		
+
 		//Make move (i.e. fill square with appropriate colour sphere)
 		if(tier == 1) bottom_tier[pos1][pos2] = player;
 		else if(tier == 2) second_tier[pos1][pos2] = player;
 		else if(tier == 3) third_tier[pos1][pos2] = player;
 		else if(tier == 4) top_tier[pos1][pos2] = player;
-		
+
 		//Deduct from player's sphere count
 		if(player == WHITE) white_spheres--;
 		else if(player == BLACK) black_spheres--;
