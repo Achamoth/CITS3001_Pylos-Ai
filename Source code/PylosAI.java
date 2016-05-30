@@ -1,3 +1,10 @@
+/*
+ CITS3001 Project 2016
+ Name:			Ammar Abu Shamleh
+ Student number: 21521274
+ Date:           May 2016
+ */
+
 import java.util.ArrayList;
 
 /*
@@ -5,6 +12,7 @@ import java.util.ArrayList;
  * BLACK aims to minimize utility
  */
 
+//This class implements AI theory to calculate an intelligent move, given a specified game state
 public class PylosAI {
 	//Move types
 	private final static int PLACE = 1;

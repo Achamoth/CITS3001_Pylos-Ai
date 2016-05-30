@@ -1,5 +1,13 @@
+/*
+ CITS3001 Project 2016
+ Name:			Ammar Abu Shamleh
+ Student number: 21521274
+ Date:           May 2016
+ */
+
 import java.util.ArrayList;
 
+//This is simply a testing class, for bug fixing and error checking
 public class Test {
 	public static void main(String[] args) {
 		Pylos game = new Pylos();

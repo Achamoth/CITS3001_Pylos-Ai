@@ -1,4 +1,11 @@
+/*
+ CITS3001 Project 2016
+ Name:			Ammar Abu Shamleh
+ Student number: 21521274
+ Date:           May 2016
+ */
 
+//This class offers an internatal representation of a valid pylos move
 public class PylosMove {
 	private final static int PLACE = 1;
 	private final static int RAISE = 2;
