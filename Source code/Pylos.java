@@ -65,35 +65,49 @@ public class Pylos {
 	//Print game board
 	public void display() {
 		//Bottom tier
+        char bottomGuide[] = {'a', 'b', 'c', 'd'};
 		System.out.println("Bottom tier:");
+        System.out.println("\t1\t\t2\t\t3\t\t4\n");
 		for(int i=0; i<4; i++) {
+            System.out.print(bottomGuide[i] + "\t");
 			for(int j=0; j<4; j++) {
-				System.out.print(bottom_tier[i][j]+"\t");
+				System.out.print(toChar(bottom_tier[i][j])+"\t\t");
 			}
 			System.out.print("\n");
 		}
 
 		//Second tier
+        char secondGuide[] = {'e', 'f', 'g'};
 		System.out.println("Second tier:");
+        System.out.println("\t\t1\t\t2\t\t2\n");
 		for(int i=0; i<3; i++) {
+            System.out.print(secondGuide[i] + "\t");
+            System.out.print("\t");
 			for(int j=0; j<3; j++) {
-				System.out.print(second_tier[i][j]+"\t");
+				System.out.print(toChar(second_tier[i][j])+"\t\t");
 			}
 			System.out.print("\n");
 		}
 
 		//Third tier
+        char thirdGuide[] = {'h', 'i'};
 		System.out.println("Third tier:");
+        System.out.println("\t\t\t1\t\t2\n");
 		for(int i=0; i<2; i++) {
+            System.out.print(thirdGuide[i] + "\t");
+            System.out.print("\t\t");
 			for(int j=0; j<2; j++) {
-				System.out.print(third_tier[i][j]+"\t");
+				System.out.print(toChar(third_tier[i][j])+"\t\t");
 			}
 			System.out.print("\n");
 		}
 
 		//Top tier
 		System.out.println("Top tier:");
-		System.out.println(top_tier[0][0]);
+        System.out.println("\t\t\t\t1\n");
+        System.out.print("j\t");
+        System.out.print("\t\t\t");
+		System.out.println(toChar(top_tier[0][0]));
 
 		//Spheres
 		System.out.println("Black spheres:" + black_spheres);
@@ -102,7 +116,14 @@ public class Pylos {
 		//Newline
 		System.out.print("\n\n");
 	}
-
+    
+    //Returns char representaion of player for printing of board (i.e. 'E', 'W' or 'B')
+    private char toChar(int player) {
+        if(player == EMPTY) return 'E';
+        else if(player == WHITE) return 'W';
+        else return 'B';
+    }
+    
 	//Given a position on the board, determines if that position belongs to the specified player
 	public boolean belongsToPlayer(int player, int tier, int ypos, int xpos) {
 		if(tier == 1) {

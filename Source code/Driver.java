@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.io.File;
 
 public class Driver {
 
@@ -18,6 +19,20 @@ public class Driver {
 		//Create game board
 		game = new Pylos();
 
+        //Print instructions for player
+        try {
+            File f = new File("instructions.txt");
+            Scanner scanner = new Scanner(f);
+            while(scanner.hasNextLine()) {
+                String line = scanner.nextLine().trim();
+                System.out.println(line);
+            }
+            System.out.print("\n");
+            scanner.close();
+        } catch(Exception e) {
+            System.out.println("Error printing instructions. \"instructions.txt\" may not be present in current directory");
+        }
+        
 		//Ask player what side they want to play as
 		String human = "";
 		int man = 0;

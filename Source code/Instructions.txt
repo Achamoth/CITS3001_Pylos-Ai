@@ -1,0 +1,27 @@
+Welcome to Pylos!
+
+The game will operate by prompting you for a move when required
+To make a move, enter precisely in the following format your desired move:
+
+To place a sphere, please enter:
+
+place [position]
+
+Where position identifies the position you’d like to place the sphere
+Coordinates should be a letter (identifying the row) followed by a number (identifying the column)
+
+Example: place a4
+
+
+To raise a sphere, please enter:
+
+raise [source] [destination]
+
+Where source and destination are specified in the above format
+
+Example: raise a1 i2
+
+LEGEND: 
+‘E’ stands for empty (i.e. no sphere)
+‘W’ stands for white sphere
+‘B’ stands for black sphere
