@@ -41,12 +41,21 @@ public class AltDriver {
 		//Assign each AI's evaluation function
 		String whiteEval = "simple";
 		String blackEval = "height";
+        
+        //Records times taken for each move by cpu1
+        long timecpu1[][] = new long[30][2];
+        
+        //Records times taken for each move by cpu2
+        long timecpu2[][] = new long[30][2];
 		
+        int curMoveCpu1 = 0;
+        int curMoveCpu2 = 0;
+        
 		/*Start game*/
 		while(!complete) {
 
 			//Display game board at beginning of each loop
-			game.display();
+			//game.display();
 
 			//Report whose move it is
 			if(cur_player == WHITE) System.out.println("White's move");
@@ -60,12 +69,22 @@ public class AltDriver {
 				//Set current evaluation function to simple
 				PylosAI.setEvaluateFunction(whiteEval);
 				
+                //Calculate minimax move (and calculate how long it takes)
+                long startTime = System.nanoTime();
+                PylosMove minimaxMove = PylosAI.alphaBetaSearch(game, cpu1);
+                long finishTime = System.nanoTime();
+                long duration = finishTime - startTime;
+                System.out.println("Minimax took " + duration/1000000000 + " seconds");
+                printMove(minimaxMove);
+                timecpu1[curMoveCpu1][0] = duration;
+                
 				//Calculate alpha beta move (and calculate how long it takes)
-				long startTime = System.nanoTime();
+				startTime = System.nanoTime();
 				PylosMove ABMove = PylosAI.alphaBetaSearch(game, cpu1);
-				long finishTime = System.nanoTime();
-				long duration = finishTime - startTime;
+				finishTime = System.nanoTime();
+				duration = finishTime - startTime;
 				System.out.println("Alpha beta took " + duration/1000000000 + " seconds");
+                timecpu1[curMoveCpu1++][1] = duration;
 				
 				//Apply chosen move (alpha beta)
 				game.applyMove(ABMove, cpu1);
@@ -80,13 +99,23 @@ public class AltDriver {
 				
 				//Set current evaluation function to height
 				PylosAI.setEvaluateFunction(blackEval);
+                
+                //Calculate minimax move (and calculate how long it takes)
+                long startTime = System.nanoTime();
+                PylosMove minimaxMove = PylosAI.minimax(game, cpu2);
+                long finishTime = System.nanoTime();
+                long duration = finishTime - startTime;
+                System.out.println("Minimax took " + duration/1000000000 + " seconds");
+                printMove(minimaxMove);
+                timecpu2[curMoveCpu2][0] = duration;
 				
 				//Calculate alpha beta move (and calculate how long it takes)
-				long startTime = System.nanoTime();
+				startTime = System.nanoTime();
 				PylosMove ABMove = PylosAI.alphaBetaSearch(game, cpu2);
-				long finishTime = System.nanoTime();
-				long duration = finishTime - startTime;
+				finishTime = System.nanoTime();
+				duration = finishTime - startTime;
 				System.out.println("Alpha beta took " + duration/1000000000 + " seconds");
+                timecpu2[curMoveCpu2++][1] = duration;
 				
 				//Apply chosen move (alpha beta)
 				game.applyMove(ABMove, cpu2);
@@ -104,7 +133,7 @@ public class AltDriver {
 		}
 
 		//Game has terminated; print final board state
-		game.display();
+		//game.display();
 
 		//Print winner
 		int winner = game.winner();
@@ -114,7 +143,29 @@ public class AltDriver {
 		//Print evaluation function in use by each color player
 		System.out.println("White was using " + "\'" + whiteEval + "\'");
 		System.out.println("Black was using " + "\'" + blackEval + "\'");
+        
+        //Print averages of times taken
+        printTimeAverages(timecpu1);
+        printTimeAverages(timecpu2);
 	}
+    
+    //Print averages of times recorded in 2 arrays
+    private static void printTimeAverages(long times[][]) {
+        //First calculate the average of times
+        int nmoves = times.length;
+        long sumMinimax = 0;
+        long sumAlphaBeta = 0;
+        for(int i=0; i<nmoves; i++) {
+            sumMinimax += times[i][0];
+            sumAlphaBeta += times[i][1];
+        }
+        long alphaBetaAverage = sumAlphaBeta/nmoves;
+        long minimaxAverage = sumMinimax/nmoves;
+        
+        //Now print results
+        System.out.println("Minimax averaged " + minimaxAverage/1000000 + " milli seconds");
+        System.out.println("Alpha beta averaged " + alphaBetaAverage/1000000 + " milli seconds");
+    }
 	
 	//Print a move in a human readable format
 	public static void printMove(PylosMove action) {
