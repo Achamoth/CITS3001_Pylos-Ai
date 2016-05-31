@@ -83,10 +83,10 @@ public final class PylosAI {
 	private static boolean terminal(Pylos state) {
 		return state.isComplete();
 	}
-
+    
 	//A simple evaluation function that looks at the number of spheres retained by each player, and computes an evaluation for specified player
 	private static int evaluate_simple(Pylos state, int player) {
-		//To start with, we'll use a simple evaluation function that just compares number of spheres
+		//This function emphasizes preserving the player's spheres
 		int result;
 		int whiteSpheres = state.sphereCount(WHITE);
 		int blackSpheres = state.sphereCount(BLACK);
