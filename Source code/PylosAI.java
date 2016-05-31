@@ -845,7 +845,7 @@ public final class PylosAI {
                 
                 //Check if 5 seconds have elapsed
                 CURRENT_TIME = (int) System.nanoTime();
-                if((CURRENT_TIME - START_TIME) / 1000000000 == 5) {
+                if((CURRENT_TIME - START_TIME) / 1000000000 >= 5) {
                     //If 5 seconds have elapsed, just return null
                     return null;
                 }
