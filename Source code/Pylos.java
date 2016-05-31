@@ -87,7 +87,7 @@ public class Pylos {
 		//Second tier
         char secondGuide[] = {'e', 'f', 'g'};
 		System.out.println("Second tier:");
-        System.out.println("\t\t1\t\t2\t\t2\n");
+        System.out.println("\t\t1\t\t2\t\t3\n");
         System.out.print("---------------------------------------------------------\n");
 		for(int i=0; i<3; i++) {
             System.out.print(secondGuide[i] + "\t");
