@@ -13,7 +13,7 @@ import java.util.ArrayList;
  */
 
 //This class implements AI theory to calculate an intelligent move, given a specified game state
-public class PylosAI {
+public final class PylosAI {
 	//Move types
 	private final static int PLACE = 1;
 	private final static int RAISE = 2;
