@@ -90,17 +90,22 @@ public class Driver {
 				System.out.println("Minimax took " + duration/1000000000 + " seconds");*/
 				
 				//Calculate alpha beta move (and calculate how long it takes)
+                PylosAI.changeABDepth(5); //Start off trying to calculate with depth of 5
 				long startTime = System.nanoTime();
 				PylosMove ABMove = PylosAI.alphaBetaSearch(game, cpu);
+                if(ABMove == null) {
+                    PylosAI.changeABDepth(4);
+                    ABMove = PylosAI.alphaBetaSearch(game, cpu);
+                }
 				long finishTime = System.nanoTime();
 				long duration = finishTime - startTime;
-				System.out.println("Alpha beta took " + duration/1000000000 + " seconds");
+				System.out.println("Alpha beta took " + duration/1000000000 + " seconds, with depth of " + PylosAI.getABDepth());
 				
 				//Apply chosen move (alpha beta)
 				game.applyMove(ABMove, cpu);
 				
 				//Print move for human player to see
-				//System.out.print("Alpha Beta Chose: "); 
+                System.out.print("Alpha Beta Chose: ");
 				printMove(ABMove);
 				//System.out.print("Minimax Chose: "); printMove(MiniMaxMove);
 			}

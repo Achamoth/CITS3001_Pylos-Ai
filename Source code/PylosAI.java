@@ -31,6 +31,10 @@ public final class PylosAI {
 	private static final int EVALUATE_SIMPLE = 15;
 	private static final int EVALUATE_HEIGHT = 20;
 	private static final int EVALUATE_SIMPLE_BLOCKER = 25;
+    
+    //Variables to record time taken
+    private static int START_TIME;
+    private static int CURRENT_TIME;
 
 	private static final int A = 0;
 	private static final int B = 1;
@@ -45,6 +49,26 @@ public final class PylosAI {
 	
 	private static int curEvalFunction = EVALUATE_SIMPLE;
 
+    //Function to change depth limit for Alpha Beta search
+    public static void changeABDepth(int newDepth) {
+        DEPTH_LIMIT_ALPHABETA = newDepth;
+    }
+    
+    //Function to change depth limit for Minimax search
+    public static void changeMinimaxDepth(int newDepth) {
+        DEPTH_LIMIT_MINIMAX = newDepth;
+    }
+    
+    //Getter function for alpha beta depth
+    public static int getABDepth() {
+        return DEPTH_LIMIT_ALPHABETA;
+    }
+    
+    //Getter function for minimax depth
+    public static int getMinimaxDepth() {
+        return DEPTH_LIMIT_MINIMAX;
+    }
+    
 	//Utility function; looks at state (and maybe depth, in the future), and determines utility, if it's a terminal state (utility determined from perspective of specified player)
 	private static int utility(Pylos state) {
 		if(terminal(state)) {
@@ -802,6 +826,9 @@ public final class PylosAI {
 	//Returns move using alpha beta search on game tree
 	public static PylosMove alphaBetaSearch(Pylos state, int player) {
 		PylosMove move = null;
+        //Set timers
+        START_TIME = (int) System.nanoTime();
+        CURRENT_TIME = START_TIME;
 
 		//If CPU is white
 		if(player == WHITE) {
@@ -815,6 +842,13 @@ public final class PylosAI {
 					maxMinVal = minVal;
 					move = curMove;
 				}
+                
+                //Check if 5 seconds have elapsed
+                CURRENT_TIME = (int) System.nanoTime();
+                if((CURRENT_TIME - START_TIME) / 1000000000 == 5) {
+                    //If 5 seconds have elapsed, just return null
+                    return null;
+                }
 			}
 		}
 
