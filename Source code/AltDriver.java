@@ -91,13 +91,23 @@ public class AltDriver {
                 timecpu1[curMoveCpu1][0] = duration;*/
                 
 				//Calculate alpha beta move (and calculate how long it takes)
+                PylosAI.changeABDepth(5); //Start off with a depth limit of 5
 				long startTime = System.nanoTime();
 				PylosMove ABMove = PylosAI.alphaBetaSearch(game, cpu1);
-				long finishTime = System.nanoTime();
+                
+                //Check if move is null (5 seconds elapsed before alpha beta found a move)
+                while(ABMove == null) {
+                    //If it does, reduce depth limit by 1 and search again
+                    PylosAI.changeABDepth(PylosAI.getABDepth() - 1);
+                    ABMove = PylosAI.alphaBetaSearch(game, cpu1);
+                }
+                
+                //Calculate finish time and duration taken to find move
+                long finishTime = System.nanoTime();
 				long duration = finishTime - startTime;
-				System.out.println("Alpha beta took " + duration/1000000000 + " seconds");
+                System.out.println("Alpha beta took " + duration/1000000000 + " seconds, with a depth limit of " + PylosAI.getABDepth());
                 timecpu1[curMoveCpu1++][0] = duration;
-				
+                
 				//Apply chosen move (alpha beta)
 				game.applyMove(ABMove, cpu1);
 				
@@ -122,11 +132,21 @@ public class AltDriver {
                 timecpu2[curMoveCpu2][0] = duration;*/
 				
 				//Calculate alpha beta move (and calculate how long it takes)
+                PylosAI.changeABDepth(5); //Start off with a depth limit of 5
 				long startTime = System.nanoTime();
 				PylosMove ABMove = PylosAI.alphaBetaSearch(game, cpu2);
+                
+                //Check if move is null (5 seconds elapsed before alpha beta found a move)
+                while(ABMove == null) {
+                    //If it is, reduce depth limit by 1 and search again
+                    PylosAI.changeABDepth(PylosAI.getABDepth() - 1);
+                    ABMove = PylosAI.alphaBetaSearch(game, cpu2);
+                }
+                
+                //Clculate finish time, and duration taken to find move
 				long finishTime = System.nanoTime();
 				long duration = finishTime - startTime;
-				System.out.println("Alpha beta took " + duration/1000000000 + " seconds");
+				System.out.println("Alpha beta took " + duration/1000000000 + " seconds, with a depth limit of " + PylosAI.getABDepth());
                 timecpu2[curMoveCpu2++][0] = duration;
 				
 				//Apply chosen move (alpha beta)
@@ -157,7 +177,9 @@ public class AltDriver {
 		System.out.println("Black was using " + "\'" + blackEval + "\'");
         
         //Print averages of times taken
+        System.out.print("White: ");
         printTimeAverages(timecpu1);
+        System.out.print("Black: ");
         printTimeAverages(timecpu2);
 	}
     
@@ -176,7 +198,7 @@ public class AltDriver {
         
         //Now print results
         //System.out.println("Minimax averaged " + minimaxAverage/1000000 + " milli seconds");
-        System.out.println("Alpha beta averaged " + alphaBetaAverage/1000000 + " milli seconds");
+        System.out.print("Alpha beta averaged " + alphaBetaAverage/1000000 + " milli seconds\n");
     }
 	
 	//Print a move in a human readable format

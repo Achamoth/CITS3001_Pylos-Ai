@@ -93,13 +93,13 @@ public class Driver {
                 PylosAI.changeABDepth(5); //Start off trying to calculate with depth of 5
 				long startTime = System.nanoTime();
 				PylosMove ABMove = PylosAI.alphaBetaSearch(game, cpu);
-                if(ABMove == null) {
+                while(ABMove == null) {
                     PylosAI.changeABDepth(PylosAI.getABDepth() - 1);
                     ABMove = PylosAI.alphaBetaSearch(game, cpu);
                 }
 				long finishTime = System.nanoTime();
 				long duration = finishTime - startTime;
-				System.out.println("Alpha beta took " + duration/1000000000 + " seconds, with depth of " + PylosAI.getABDepth());
+				System.out.println("Alpha beta took " + duration/1000000000 + " seconds, with depth limit of " + PylosAI.getABDepth());
 				
 				//Apply chosen move (alpha beta)
 				game.applyMove(ABMove, cpu);

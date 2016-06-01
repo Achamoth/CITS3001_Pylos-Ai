@@ -35,10 +35,6 @@ public final class PylosAI {
 	private static final int EVALUATE_SIMPLE = 15;
 	private static final int EVALUATE_HEIGHT = 20;
 	private static final int EVALUATE_SIMPLE_BLOCKER = 25;
-    
-    //Variables to record time taken
-    private static int START_TIME;
-    private static int CURRENT_TIME;
 
 	private static final int A = 0;
 	private static final int B = 1;
@@ -831,8 +827,8 @@ public final class PylosAI {
 	public static PylosMove alphaBetaSearch(Pylos state, int player) {
 		PylosMove move = null;
         //Set timers
-        START_TIME = (int) System.nanoTime();
-        CURRENT_TIME = START_TIME;
+        long START_TIME = System.nanoTime();
+        long CURRENT_TIME = START_TIME;
 
 		//If CPU is white
 		if(player == WHITE) {
@@ -848,9 +844,9 @@ public final class PylosAI {
 				}
                 
                 //Check if 5 seconds have elapsed
-                CURRENT_TIME = (int) System.nanoTime();
-                if((CURRENT_TIME - START_TIME) / 1000000000 >= 5) {
-                    //If 5 seconds have elapsed, just return null
+                CURRENT_TIME = System.nanoTime();
+                if((CURRENT_TIME - START_TIME) / 1000000000 >= 6) {
+                    //If 6 seconds have elapsed, just return null
                     return null;
                 }
 			}
@@ -868,6 +864,13 @@ public final class PylosAI {
 					minMaxVal = maxVal;
 					move = curMove;
 				}
+                
+                //Check if 5 seconds have elapsed
+                CURRENT_TIME = System.nanoTime();
+                if((CURRENT_TIME - START_TIME) / 1000000000 >= 6) {
+                    //If 6 seconds have elapsed, just return null
+                    return null;
+                }
 			}
 		}
 
