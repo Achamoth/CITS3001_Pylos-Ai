@@ -163,7 +163,7 @@ public final class PylosAI {
 			curEvalFunction = EVALUATE_HEIGHT;
 			DEPTH_LIMIT_ALPHABETA = 5;
 		}
-		else if(func.equalsIgnoreCase("simple blocker")) {
+		else if(func.equalsIgnoreCase("blocker")) {
 			curEvalFunction = EVALUATE_SIMPLE_BLOCKER;
 			DEPTH_LIMIT_ALPHABETA = 5;
 		}
