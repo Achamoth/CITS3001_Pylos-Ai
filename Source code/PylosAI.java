@@ -26,6 +26,10 @@ public final class PylosAI {
 	//Depth limit on game search tree
 	private static int DEPTH_LIMIT_MINIMAX = 5;
 	private static int DEPTH_LIMIT_ALPHABETA = 5;
+
+    
+    //Consistency threshold for consistency search
+    private static int CONSISTENCY_THRESHOLD = 22;
 	
 	//Assigns constant number to each evaluation function
 	private static final int EVALUATE_SIMPLE = 15;
@@ -961,4 +965,21 @@ public final class PylosAI {
 		}
 		return minMaxVal;
 	}
+    
+    //Perform consistency search on game tree (a variant of quiescence search)
+    public static boolean consistencySearch(Pylos state, int player) {
+        //Evaluate parent state
+        int parentEval = evaluate(state, player);
+        
+        //Check if state's children are within consistency threshold
+        ArrayList<PylosMove> moves = actions(state, player);
+        for(PylosMove curMove : actions) {
+            int eval = evaluate(result(state, curMove, player));
+            int difference = Math.abs(eval - parentEval);
+            if(difference > CONSISTENCY_THRESHOLD) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
