@@ -973,8 +973,8 @@ public final class PylosAI {
         
         //Check if state's children are within consistency threshold
         ArrayList<PylosMove> moves = actions(state, player);
-        for(PylosMove curMove : actions) {
-            int eval = evaluate(result(state, curMove, player));
+        for(PylosMove curMove : moves) {
+            int eval = evaluate(result(state, curMove, player), player);
             int difference = Math.abs(eval - parentEval);
             if(difference > CONSISTENCY_THRESHOLD) {
                 return true;
