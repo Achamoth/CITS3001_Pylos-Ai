@@ -333,6 +333,9 @@ public class Pylos {
 
 		//Calculate tier of source coordinate
 		int tier_source = find_tier(source.charAt(0));
+        
+        //Calculate tier of dest coordinate
+        int tier_dest = find_tier(dest.charAt(0));
 
 		//Check that source coordinate is valid
 		if(!canRaise(player, tier_source, ySource, xSource)) {
@@ -360,7 +363,7 @@ public class Pylos {
 		}
 
 		//Check that destination coordinate is valid
-		if(!canPlace(tier_source+1, xDest, yDest)) {
+		if(!canPlace(tier_dest, xDest, yDest)) {
 			//If it isn't, ask user for another destination coordinate
 			boolean valid = false;
 			while(!valid) {
@@ -375,7 +378,7 @@ public class Pylos {
 					xDest--;
 
 					//Calulate tier
-					int tier_dest = find_tier(coordinates.charAt(0));
+					tier_dest = find_tier(coordinates.charAt(0));
 
 					//Check if newly provided coordinates are valid
 					valid = canPlace(tier_dest, xDest, yDest);
@@ -394,14 +397,14 @@ public class Pylos {
 			second_tier[ySource][xSource] = EMPTY;
 		}
 		//Now, add it to dest
-		if(tier_source == 1) {
+		if(tier_dest == 2) {
 			second_tier[yDest][xDest] = player;
 		}
-		else if(tier_source == 2) {
+		else if(tier_dest == 3) {
 			third_tier[yDest][xDest] = player;
 		}
 		//Finally, check if a square, horizontal line, or vertical line of same colored spheres has been created
-		boolean mustRemove = checkForRemove(tier_source+1, yDest, xDest);
+		boolean mustRemove = checkForRemove(tier_dest, yDest, xDest);
 		if(mustRemove) {
 			System.out.println("You must remove 1/2 piece(s)");
 			System.out.print("How many pieces do you want to remove:");
